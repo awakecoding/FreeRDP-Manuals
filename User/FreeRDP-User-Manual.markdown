@@ -1,5 +1,6 @@
 % FreeRDP User Manual
 % Marc-André Moreau
+% Awake Coding Consulting Inc.
 
 # Introduction
 
@@ -185,3 +186,80 @@ When NLA is negotiated, the complete credentials are needed at connection time, 
 	connected to rdp.contoso.com
 	Password:
 
+## Performance Flags
+
+The RDP performance flags are used by the client to tweak certain remote graphical operations affecting the user experience. A good example is the wallpaper: drawing it requires sending a lot of data as opposed to filling it with black. Using the wallpaper is fast enough on the LAN, but it may negatively affect performance over a slower connection such as over a cellular network. The same principle applies for themes, fonts, menu animations, window dragging, etc.
+
+### Smooth Fonts
+
+Disabled by default, enable with +fonts. Regular RDP fonts are drawn and encoded separately from images sent over the wire, but they have the drawback of not being very crisp and clear. Enabling smooth fonts means you get easier to read and clearer characters (ClearType), but they are sent as images, which may be slower.
+
+### Desktop Composition
+
+Disabled by default, enable with +aero. This should not be confused with the desktop composition extension that redirects compositing calls for local rendering, a feature not supported by FreeRDP. This flag will only work in the few cases where compositing can be rendered over RemoteFX. As for now, this is only possible with Windows 7 SP1 on Hyper-V on Windows Server 2008 R2 SP1 with RemoteFX 3D.
+
+### Full Window Dragging
+
+Disabled by default, enable with +window-drag. Dragging a window around is particularly intensive as it causes a lot of graphical updates (each time you move the window by one pixel, there is a large area of the screen that needs to be updated). To work around this problem, the server can draw the outline of the window as you drag it, and only draw the full window once you are done dragging it.
+
+### Menu Animations
+
+Disabled by default, enable with +menu-anims. Just like window dragging, menu animations may cause a lot of graphical updates.
+
+### Themes
+
+Enabled by default, disable with -themes
+
+### Wallpaper
+
+Enabled by default, disable with -wallpaper
+
+## Drive Redirection
+
+To redirect all drives, use /drives:
+
+	xfreerdp /v:rdp.contoso.com /drives
+
+On Windows, each drive has a letter and is redirected individually. On Linux, the root directory (/) is redirected, which is equivalent to redirecting all drives. 
+
+To redirect the user home directory as a drive, use /home-drive:
+
+	xfreerdp /v:rdp.contoso.com /home-drive
+
+This is convenient if the user "JohnDoe" wants to redirect only "/home/JohnDoe" instead of the root directory ("/").
+
+## Serial Redirection
+
+To be expanded.
+
+## Parallel Redirection
+
+To be expanded.
+
+## Smartcard Redirection
+
+To be expanded.
+
+## Printer Redirection
+
+To be expanded.
+
+## Clipboard redirection
+
+To enable clipboard redirection, use /clipboard:
+
+	xfreerdp /v:rdp.contoso.com /clipboard
+
+While clipboard redirection is supported in remote desktop mode, it is not yet supported with RemoteApp due to certain technical challenges.
+
+## Audio Playback
+
+To enable sound redirection, use /sound:
+
+	xfreerdp /v:rdp.contoso.com /sound
+
+## Audio Recording
+
+To enable audio input (recording), use /microphone:
+
+	xfreerdp /v:rdp.contoso.com /microphone
