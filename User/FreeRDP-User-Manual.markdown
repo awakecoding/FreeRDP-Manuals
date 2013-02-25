@@ -204,15 +204,15 @@ Disabled by default, enable with +window-drag. Dragging a window around is parti
 
 ### Menu Animations
 
-Disabled by default, enable with +menu-anims. Just like window dragging, menu animations may cause a lot of graphical updates.
+Disabled by default, enable with +menu-anims. Just like window dragging, menu animations may cause a lot of successive graphical updates. Disabling it is a good idea.
 
 ### Themes
 
-Enabled by default, disable with -themes
+Enabled by default, disable with -themes. Rich themes usually require operations with bitmaps, while a classic theme can often be drawn with simple and efficient operations using plain colors. Disabling themes is worth it if you can stand the look & feel.
 
 ### Wallpaper
 
-Enabled by default, disable with -wallpaper
+Enabled by default, disable with -wallpaper. The wallpaper may look pretty but it is a large image that compresses less efficiently than a plain color background. Disabling it reduce rendering time for the background, which is particularly noticeable at connection time and when minimizing windows.
 
 ## Drive Redirection
 
@@ -230,7 +230,7 @@ This is convenient if the user "JohnDoe" wants to redirect only "/home/JohnDoe" 
 
 ## Serial Redirection
 
-To be expanded.
+	xfreerdp /serial:COM3,/dev/ttyUSB0 /v:rdp.contoso.com
 
 ## Parallel Redirection
 
