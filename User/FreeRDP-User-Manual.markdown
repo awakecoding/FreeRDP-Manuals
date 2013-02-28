@@ -230,7 +230,30 @@ This is convenient if the user "JohnDoe" wants to redirect only "/home/JohnDoe" 
 
 ## Serial Redirection
 
+To redirect a serial device, you must first identify the corresponding device file. If you are using a USB to serial adapter, the device usually shows up as /dev/ttyUSB0.
+
+In most cases, the device representing the serial device will not be usable with user permissions. You can either chown or chmod the device or do it cleanly with udev rules.
+
 	xfreerdp /serial:COM3,/dev/ttyUSB0 /v:rdp.contoso.com
+	
+It might be confusing at first, but the redirected serial ports will not appear in the device manager. Instead, open a command prompt and type:
+
+    >change port /query
+    AUX = \DosDevices\COM1
+    COM1 = \Device\Serial0
+    COM2 = \Device\Serial1
+    COM3 = \Device\RdpDrPort\;COM3:2\tsclient\COM3
+    GLOBALROOT =
+    
+In this above listing, /dev/ttyUSB0 is redirected as COM3.
+
+You need to manually map the remote COM port to a local COM port:
+
+    net use COMx: \\tsclient\COMy
+
+Where x is a COM port available on the server and y is a COM port available on the client.
+
+![FreeRDP Serial Redirection](User/images/freerdp_serial_redirection.png "FreeRDP Serial Redirection")
 
 ## Parallel Redirection
 
