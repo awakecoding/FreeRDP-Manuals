@@ -253,7 +253,7 @@ You need to manually map the remote COM port to a local COM port:
 
 Where x is a COM port available on the server and y is a COM port available on the client.
 
-![FreeRDP Serial Redirection](User/images/freerdp_serial_redirection.png "FreeRDP Serial Redirection")
+![FreeRDP Serial Redirection](images/freerdp_serial_redirection.png "FreeRDP Serial Redirection")
 
 ## Parallel Redirection
 

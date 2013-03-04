@@ -2,7 +2,9 @@
 
 sub pandoc_generate_pdf
 {
-	($DOC) = @_;
+	($DIR, $DOC) = @_;
+
+	chdir($DIR);
 
 	print "Generating $DOC PDF...\n";
 
@@ -17,29 +19,43 @@ sub pandoc_generate_pdf
 
 	system($CMD);
 
+	chdir("..");
+
 	print "Done!\n";
 }
 
-$USR_DOC = "User/FreeRDP-User-Manual";
-$DEV_DOC = "Developer/FreeRDP-Developer-Manual";
-$CFG_DOC = "Configuration/FreeRDP-Configuration-Manual";
+$USR_DIR = "User";
+$USR_DOC = "FreeRDP-User-Manual";
 
+$DEV_DIR = "Developer";
+$DEV_DOC = "FreeRDP-Developer-Manual";
+
+$CFG_DIR = "Configuration";
+$CFG_DOC = "FreeRDP-Configuration-Manual";
+
+@DIRS = ();
 @DOCS = ();
 
 foreach $i (0 .. $#ARGV) {
 	if ($ARGV[$i] =~ m/^usr$/) {
+		push(@DIRS, $USR_DIR);
 		push(@DOCS, $USR_DOC);
 	} elsif ($ARGV[$i] =~ m/^dev$/) {
+		push(@DIRS, $DEV_DIR);
 		push(@DOCS, $DEV_DOC);
 	} elsif ($ARGV[$i] =~ m/^cfg$/) {
+		push(@DIRS, $CFG_DIR);
 		push(@DOCS, $CFG_DOC);
 	}
 }
 
 if ($#ARGV eq -1) {
+	@DIRS = ($USR_DIR, $DEV_DIR, $CFG_DIR);
 	@DOCS = ($USR_DOC, $DEV_DOC, $CFG_DOC);
 }
 
 foreach (@DOCS) {
-	pandoc_generate_pdf($_);
+	$DIR = shift(@DIRS);
+	pandoc_generate_pdf($DIR, $_,);
 }
+
