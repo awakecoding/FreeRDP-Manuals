@@ -292,6 +292,8 @@ The old RDP authentication mechanism is very simple: the server presents the cli
 
 Old RDP authentication may be practical in the sense that you can get a remote Winlogon GUI without being authenticated on the server. This is however a design flaw which makes the RDP server vulnerable to a DDOS attack: since significant resources need to be allocated for the Winlogon GUI without being authenticated, a distributed denial of service attack could be performed by simply launching multiple unauthenticated connections. This is exactly why it is no longer possible to obtain such a GUI prior to authentication with newer security levels.
 
+![Winlogon GUI](images/winlogon_gui.png "Winlogon GUI")
+
 ##### Network Level Authentication (NLA)
 
 Network Level Authentication (NLA) is required by default with servers starting with Windows Vista. With NLA, authentication is the very first thing that occurs over the wire, such that the server will only allocate resources and present a graphical interface to authenticated clients. It is also much more secure and provides strong defense mechanisms against Man-in-the-Middle (MITM) attacks.
@@ -310,6 +312,9 @@ The RDP performance flags are used by the client to tweak certain remote graphic
 
 Disabled by default, enable with +fonts. Regular RDP fonts are drawn and encoded separately from images sent over the wire, but they have the drawback of not being very crisp and clear. Enabling smooth fonts means you get easier to read and clearer characters (ClearType), but they are sent as images, which may be slower.
 
+![With Smooth Fonts](images/with_smooth_fonts.png "With Smooth Fonts")
+![Without Smooth Fonts](images/without_smooth_fonts.png "Without Smooth Fonts")
+
 ### Desktop Composition
 
 Disabled by default, enable with +aero. This should not be confused with the desktop composition extension that redirects compositing calls for local rendering, a feature not supported by FreeRDP. This flag will only work in the few cases where compositing can be rendered over RemoteFX. As for now, this is only possible with Windows 7 SP1 on Hyper-V on Windows Server 2008 R2 SP1 with RemoteFX 3D.
@@ -325,6 +330,9 @@ Disabled by default, enable with +menu-anims. Just like window dragging, menu an
 ### Themes
 
 Enabled by default, disable with -themes. Rich themes usually require operations with bitmaps, while a classic theme can often be drawn with simple and efficient operations using plain colors. Disabling themes is worth it if you can stand the look & feel.
+
+![With Themes](images/with_themes.png "With Themes")
+![Without Themes](images/without_themes.png "Without Themes")
 
 ### Wallpaper
 
