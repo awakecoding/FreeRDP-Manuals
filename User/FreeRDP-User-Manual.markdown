@@ -119,6 +119,80 @@ Examples:
 	Multimedia Redirection: /dvc:tsmf,sys:alsa
 	USB Device Redirection: /dvc:urbdrc,id,dev:054c:0268
 
+## Command-Line Interface
+
+As of FreeRDP 1.1, the command-line interface supports two syntaxes and a completely redesigned set of command-line options. Since this is a major change, backwards compatibility is still provided for the now deprecated old command-line interface.
+
+FreeRDP uses the same command-line syntax and options as mstsc as a basis, allowing a consistent interface between RDP implementations. The mstsc help can be obtained by launching mstsc with the /? option:
+
+![mstsc help](images/mstsc_help.png "mstsc help")
+
+On top of this basic set of options, FreeRDP provides a large selection of extended options to fit all needs possible. The result is a compatible and consistent RDP implementation which is much more flexible and extensible than the original. This is why FreeRDP is used on Windows, where mstsc is already available for free.
+
+## Syntax
+
+FreeRDP supports two command-line syntaxes: the default windows-style syntax and the alternative posix-style syntax. This is made possible by a generic and highly reusable command-line parsing engine that is part of WinPR. On average, the windows-style syntax provides shorter command lines than the posix-style syntax. However, many users tend to prefer the posix-style syntax and may strongly dislike the windows-style syntax, which is why *both* syntaxes are supported. For the purpose of documenting FreeRDP, the windows-style syntax is preferred over the posix-style syntax.
+
+There are three types of options possible:
+
+    /flag (enables flag)
+    /option:<value> (specifies option with value)
+    +toggle -toggle (enables or disables toggle, where '/' is a synonym of '+')
+
+If we observe the following command line:
+
+	xfreerdp /f /bpp:32 /v:rdp.contoso.com +wallpaper -themes
+
+/f is a flag which enables the fullscreen mode.
+/bpp:32 is the "bpp" option that specifies the color depth with a value of 32.
+/v:rdp.contoso.com is the "v" option for the target server with rdp.contoso.com as its value.
++wallpaper is an option that enables the wallpaper toggle option.
+-themes is an option that disables the themes toggle option.
+
+Enabling a toggle option can be done with both '+' and '/' for the sake of simplicity. This means that enabling the wallpaper can be done with "+wallpaper" or with "/wallpaper".
+
+### Alternate Syntax
+
+The alternate syntax produces longer command lines on average, but may be more accessible to users who prefer a posix-style syntax. If this is your case, here is how the alternative syntax works:
+
+    --flag (enables flag)
+    --option:<value> (specifies option with value)
+    --enable-toggle --disable-toggle (enables or disables toggle)
+
+Performing syntaxic substitutions on our example, the command line becomes:
+
+	xfreerdp -f --bpp 32 -v rdp.contoso.com --enable-wallpaper --disable-themes
+
+The same command in the windows-style syntax uses 57 characters, while the posix-style syntax uses 75 characters. In this specific case, the windows-style syntax is approximately 25% shorter than the posix-style syntax.
+
+### Rationale
+
+One may ask: why, oh why? Well, here's why:
+
+The first easy answer is out-of-the-box compatibility with mstsc, but there's a lot more to it than just that.
+
+One of the most annoying aspect of the posix-style syntax is that it uses the minus '-' sign to *enable* an option, preventing unambiguous usage of the same symbol to mean *disable*. Certain programs using a posix-style syntax do accept +/-, but you need to know which options can be toggled in such a manner beforehand. This can easily lead to confusion because one cannot know just by looking at the syntax if the minus '-' sign is used to enable or disable an option, as knowledge of the option type is required to make the distinction.
+
+In order to unambiguously make use of the minus +/- as a way to toggle options, we need to use a symbol other than minus '-' to enable options. Since the windows-style syntax uses the slash '/' symbol instead, this problem is solved.
+
+The toggle options are very frequently used in FreeRDP, which is why it makes sense to use a syntax that keeps them short and readable. When you type options like --disable-themes multiple times a day and your command lines contain *many* such options, it is hard to argue against using the +/- notation.
+
+One other strong aspect of the windows-style syntax is the usage of the colon as an option/value separator instead of a space. While this may require some adaptation for some users, it reduces the potential for ambiguity in the case of values that are lists. Most of the time, windows-style syntaxes encode lists as comma-separated values:
+
+	/list:item1,item2,item3
+
+With regular posix-style syntax, the same list would be encoded this way:
+
+	--list item1 item2 item3 --
+	
+In the case of FreeRDP, lists are encoded in the same way regardless of the syntax in use, even if this diverges slightly from standard practice:
+
+	--list item1,item2,item3
+
+The comma-separated list is used because it provides unambiguous encoding of a list: otherwise, there is no way of knowing where the list ends, which is which the regular posix-style syntax makes use of "--" as the end-of-list delimiter. The old set of FreeRDP options historically made use of this list encoding, and it definitely won't be missed by many users.
+
+If even after reading this you can't get used to the windows-style syntax, simply make use of the posix-style syntax.
+
 ## Authentication
 
 Sample Values:
