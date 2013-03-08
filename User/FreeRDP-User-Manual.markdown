@@ -165,6 +165,48 @@ Performing syntaxic substitutions on our example, the command line becomes:
 
 The same command in the windows-style syntax uses 57 characters, while the posix-style syntax uses 75 characters. In this specific case, the windows-style syntax is approximately 25% shorter than the posix-style syntax.
 
+### Deprecated Options
+
+If the deprecated command-line options are used, FreeRDP warns the user about the deprecation of these options and provides mapping from the old options to the new ones, simplifying migration:
+
+	xfreerdp -f -a 32 --enable-wallpaper --disable-themes rdp.contoso.com
+	WARNING: Using deprecated command-line interface!
+	-a 32 -> /bpp:32
+	-f -> /f
+	rdp.contoso.com -> /v:rdp.contoso.com
+
+### Common Pitfalls
+
+Supporting two syntaxes along with automated detection of the deprecated options comes with certain pitfalls for the user. There are currently three possible cases for parsing the command line:
+
+	* New options, windows-style syntax
+	* New options, posix-style syntax
+	* Old options, posix-style syntax
+	
+The way parsing works is that FreeRDP attempts parsing the command line according to the three possible cases and counts the number of accepted options. The command line is then parsed again for real based on these results. Since the old options had restrictions on the positions of certain arguments like the target server that are not present, this difference is also used to facilitate proper detection of the syntax and options in use.
+
+Since the command line is parsed according to only one syntax and option set at a time, one *cannot* mix syntaxes and options that belong to different cases. The following example shows incorrect mixing of the command-line syntaxes that will lead to incorrect parsing of some of the options:
+
+	xfreerdp /f --bpp 32 -v rdp.contoso.com +wallpaper -themes
+
+A valid command line for the above example needs to be either one of the following:
+
+	xfreerdp /f /bpp:32 /v:rdp.contoso.com +wallpaper -themes
+	xfreerdp -f --bpp 32 -v rdp.contoso.com --enable-wallpaper --disable-themes
+
+Another common mistake made by users migrating from the old options is to put the target server name as the last argument without an option name:
+
+	xfreerdp -f --bpp 32 --enable-wallpaper --disable-themes rdp.contoso.com
+	WARNING: Using deprecated command-line interface!
+	-f -> /f
+	rdp.contoso.com -> /v:rdp.contoso.com
+
+The correct command would be:
+
+	xfreerdp -f --bpp 32 --enable-wallpaper --disable-themes -v rdp.contoso.com
+
+With the new set of options, never forget to use "v" for the target server, otherwise your command line will be interpreted as using the deprecated interface.
+
 ### Rationale
 
 One may ask: why, oh why? Well, here's why:
