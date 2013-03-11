@@ -114,20 +114,16 @@ Once both the SDK and NDK are installed, the first thing to do (it takes some ti
 
 You will need to set a certain number of environment variables to ease Android development. On Linux, this can be done by editing the .bashrc file, and on Mac OS X, this can be done by editing the .profile file.
 
-export NDK=/opt/android-ndk
-
-export ANDROID_NDK=$NDK
-
-export ANDROID_SDK=/opt/android-sdk
-
-export PATH=$ANDROID_SDK/tools:$ANDROID_SDK/platform-tools:$PATH
-
+	export NDK=/opt/android-ndk
+	export ANDROID_NDK=$NDK
+	export ANDROID_SDK=/opt/android-sdk
+	export PATH=$ANDROID_SDK/tools:$ANDROID_SDK/platform-tools:$PATH
 
 #### Preparing Toolchain
 
 The prebuilt toolchains that come with the Android NDK should suffice, but if you need to build your own, invoke the make-standalone-toolchain.sh script:
 
-$NDK/build/tools/make-standalone-toolchain.sh --platform=android-8 --install-dir=$ANDROID_STANDALONE_TOOLCHAIN
+	$NDK/build/tools/make-standalone-toolchain.sh --platform=android-8 --install-dir=$ANDROID_STANDALONE_TOOLCHAIN
 
 Where $ANDROID_STANDALONE_TOOLCHAIN is the location where you want to install your standalone toolchain.
 
@@ -135,7 +131,7 @@ Where $ANDROID_STANDALONE_TOOLCHAIN is the location where you want to install yo
 
 When invoking CMake, the path to the Android CMake toolchain needs to be passed:
 
-cmake -DCMAKE_TOOLCHAIN_FILE=cmake/AndroidToolchain.cmake .
+	cmake -DCMAKE_TOOLCHAIN_FILE=cmake/AndroidToolchain.cmake .
 
 The Android CMake toolchain will make use of the environment variables defined in the previous section, so make sure they are correct before invoking CMake.
 
@@ -152,8 +148,6 @@ http://developer.android.com/tools/projects/
 This project is generated and maintained using the android command-line tool:
 
 http://developer.android.com/tools/projects/projects-cmdline.html
-
- 
 
 The root of the Android project tree is located in client/Android:
 
@@ -173,9 +167,8 @@ libs: contains third-party libraries for both Java and native code
 
 Since the Android native code is built with cmake from the top-level directory, there is a small issue where the library output path does not match the one from the Android project. CMake outputs libfreerdp-android.so to libs/armeabi-v7a, but the Android project expects them in client/Android/libs/armeabi-v7a. You can either copy libfreerdp-android.so manually every time, or create a symlink to work around the issue:
 
-cd client/Android/libs
-
-ln -s ../../../libs/armeabi-v7a/ armeabi-v7a
+	cd client/Android/libs
+	ln -s ../../../libs/armeabi-v7a/ armeabi-v7a
 
 In order to verify that libfreerdp-android.so gets properly packaged in the .apk, simply unzip the resulting .apk files to see its contents (an .apk file is a regular zip file with a different extension).
 
@@ -183,13 +176,12 @@ In order to verify that libfreerdp-android.so gets properly packaged in the .apk
 
 Inside client/Android, invoke ant help to list targets:
 
-ant help
+	ant help
 
 Targets of interest are debug and release, which generate a debug or release .apk file in the bin directory:
 
-ant debug
-
-ant release
+	ant debug
+	ant release
 
 The resulting .apk files can be deployed to actual devices or the Android emulator.
 
@@ -209,7 +201,7 @@ http://code.google.com/p/ios-cmake/
 
 When invoking CMake for iOS development, the iOS toolchain needs to be passed like this:
 
-cmake -DCMAKE_TOOLCHAIN_FILE=cmake/iOSToolchain.cmake .
+	cmake -DCMAKE_TOOLCHAIN_FILE=cmake/iOSToolchain.cmake .
 
 ## Prerequisites
 
@@ -270,25 +262,32 @@ Android uses its own build system which is not supported by OpenSSL out of the b
 
 This may look like a good deal, but further modifications to default OpenSSL Android port are required before it can be built for usage with FreeRDP, such as adding an option for a static build.
 
-At the time of writing this, a usable OpenSSL sources can be found from “The Guardian Project”:
-
+Usable OpenSSL sources are available from “The Guardian Project”:
 https://github.com/guardianproject/android-external-openssl-ndk-static
 
-Just in case the original sources are taken down, here is a backup repository:
+Further modifications to the OpenSSL sources have been made by the FreeRDP developers and can be found here:
 
-https://github.com/awakecoding/android-external-openssl-ndk-static
+git://github.com/bmiklautz/android-external-openssl-ndk-static.git
+git://github.com/awakecoding/android-external-openssl-ndk-static.git
 
-Download the modified OpenSSL sources, open a terminal, and move to the root of the source tree. Ensure you have the proper environment variables configured for Android development as covered earlier, and type the following command:
+Clone the OpenSSL git repository in external/openssl in the root of the FreeRDP source tree:
 
-$NDK/ndk-build
+	cd external
+	git clone git://github.com/awakecoding/android-external-openssl-ndk-static.git openssl
 
-Copy the OpenSSL headers and library files to your target android platform directory:
+Ensure you have the proper environment variables configured for Android development as covered earlier. Move to the root of the OpenSSL source tree use the following command to build:
 
-export ANDROID_PLATFORM=android-8
+	$NDK/ndk-build
 
-cp -R include/ $NDK/platforms/$ANDROID_PLATFORM/arch-arm/usr/include/
+You can optionally install OpenSSL globally by copying the headers and library files to your target android platform directory:
 
-cp obj/local/armeabi/*.a $NDK/platforms/$ANDROID_PLATFORM/arch-arm/usr/lib/
+	export ANDROID_PLATFORM=android-8
+	cp -R include/ $NDK/platforms/$ANDROID_PLATFORM/arch-arm/usr/include/
+	cp obj/local/armeabi/*.a $NDK/platforms/$ANDROID_PLATFORM/arch-arm/usr/lib/
+
+If OpenSSL is not installed globally, you will need to manually specify its path when invoking cmake with FREERDP_ANDROID_EXTERNAL_SSL_PATH.
+
+	cmake -DCMAKE_TOOLCHAIN_FILE=cmake/AndroidToolchain.cmake -DANDROID_NDK=/opt/android-ndk -DANDROID_SDK=/opt/android-sdk -DFREERDP_ANDROID_EXTERNAL_SSL_PATH=external/openssl .
 
 #### iOS
 
@@ -298,15 +297,11 @@ Download the iOSPorts collection from: https://github.com/bindle/iOSPorts
 
 Launch Terminal and move to the root of the iOSPorts source tree. From there, type the following commands:
 
-cd ports/security/openssl/
-
-make
-
-cd openssl
-
-../build-aux/configure-wrapper.sh
-
-make install
+	cd ports/security/openssl/
+	make
+	cd openssl
+	../build-aux/configure-wrapper.sh
+	make install
 
 This will download, patch, configure build and install OpenSSL for iOS. The default installation path is in /tmp/iOSPorts. The important files are the include and lib directories from the OpenSSL, which we will need to copy to a location inside the iOS SDK.
 
@@ -324,11 +319,9 @@ export OPENSSL_ROOT=/tmp/iOSPorts
 
 Then enter the following commands to install OpenSSL in the iOS SDK:
 
-cp -R "$OPENSSL_ROOT/include" "$IOS_SDK_ROOT/usr"
-
-cp "$OPENSSL_ROOT/lib/libssl.a" "$IOS_SDK_ROOT/usr/lib/libssl.a"
-
-cp "$OPENSSL_ROOT/lib/libcrypto.a" "$IOS_SDK_ROOT/usr/lib/libcrypto.a"
+	cp -R "$OPENSSL_ROOT/include" "$IOS_SDK_ROOT/usr"
+	cp "$OPENSSL_ROOT/lib/libssl.a" "$IOS_SDK_ROOT/usr/lib/libssl.a"
+	cp "$OPENSSL_ROOT/lib/libcrypto.a" "$IOS_SDK_ROOT/usr/lib/libcrypto.a"
 
 This procedure only has to be executed once per iOS SDK. After this, OpenSSL should be picked up automatically by CMake.
 
@@ -342,13 +335,13 @@ sudo apt-get install libx11-dev libxcursor-dev libxkbfile-dev libxinerama-dev
 
 Additionally, for the X11 server, you will need:
 
-sudo apt-get install libxext-dev libxtst-dev libxdamage-dev
+	sudo apt-get install libxext-dev libxtst-dev libxdamage-dev
 
 #### Mac OS X
 
 If the X11 SDK used to ship with XCode, it was removed from its newer versions. In order to get the X11 dependencies satisfied, one has to obtain it from the XQuartz open source project:
 
-http://xquartz.macosforge.org/
+	http://xquartz.macosforge.org/
 
 #### Windows
 
@@ -366,7 +359,7 @@ Prior to generating build scripts for your environment, you should ensure that y
 
 To generate build scripts, open a terminal, move to the root of the source tree, and type:
 
-cmake .
+	cmake .
 
 This will tell CMake to generate build scripts using the CMake scripts found in the local directory (“.”). If the command fails, you might need to invoke CMake with additional options which we will cover in the following sections. The path to the directory where the root CMake script is contained is always the last argument of the cmake command.
 
@@ -387,7 +380,7 @@ CMake scripts are used to generate platform-specific build scripts with the help
 
 In order to generate an Eclipse project on Linux, one would type:
 
-cmake –G “Eclipse CDT4 – Unix Makefiles” .
+	cmake –G “Eclipse CDT4 – Unix Makefiles” .
 
 For simple makefiles without an Eclipse project, “Unix Makefiles” would do it.
 
@@ -399,7 +392,7 @@ On Mac OS X, the "Xcode" generator would be appropriate.
 
 When CMake executes, it generates CMakeCache.txt, or the CMake cache. The cache stores values from previous executions. Whenever major changes happen, such as installing new dependencies, modifying the CMake scripts, or when something does not work as expected it is advised to simply delete the CMake cache and regenerate from scratch. Clearing the CMake cache is done by deleting the CMakeCache.txt file:
 
-rm CMakeCache.txt
+	rm CMakeCache.txt
 
 The CMake cache is a simple text file which looks like a simple configuration file with one option per line. You can modify it in a text editor, but it is preferable to use a specialized editor. On Linux, there is ccmake, which is ncurses-based (simple text-based GUI inside the terminal). On Windows, there is cmake-gui. These tools are very useful in order to visualize and edit the entire set of options available for the current project.
 
@@ -411,7 +404,7 @@ Luckily for us, CMake supports using values from an initial cache when generatin
 
 Here is an example: when developing, I like to keep a working version of FreeRDP installed in a directory separated from other less stable builds. Such a build comes in handy when I need to use FreeRDP rather than develop it, and my current development build is broken. For this build, I use the following options when invoking CMake:
 
-cmake –DCMAKE_INSTALL_PREFIX=”/opt/freerdp” –DCMAKE_BUILD_TYPE=Release –DSTATIC_CHANNELS=on –DMONOLITHIC_BUILD=on –DWITH_SERVER=on .
+	cmake –DCMAKE_INSTALL_PREFIX=”/opt/freerdp” –DCMAKE_BUILD_TYPE=Release –DSTATIC_CHANNELS=on –DMONOLITHIC_BUILD=on –DWITH_SERVER=on .
 
 In the resulting CMakeCache.txt file, the options I’ve passed will look like this:
 
@@ -429,7 +422,7 @@ You will notice that the format in the CMake cache is a bit different that the f
 
 The above options can be copied in a text file which I will call “StableBuildCache.txt” for the sake of this example. The next time, instead of retyping everything, all that is needed is passing the initial cache to CMake using the –C option:
 
-cmake –C StableBuildCache.txt .
+	cmake –C StableBuildCache.txt .
 
 This will have the same effect as passing all the desired parameters through the command-line, with much less effort.
 
@@ -439,7 +432,7 @@ One of the powerful features of CMake is the ability to make out-of-source build
 
 To generate out-of-source build scripts, invoke CMake from a directory different from the source tree, while providing the path to the directory where the root CMake script is contained. For instance, if I have my sources in ~/src/FreeRDP, but I want to build everything inside the ~/build/FreeRDP directory, here is what the command would look like:
 
-cmake ../../src/FreeRDP
+	cmake ../../src/FreeRDP
 
 Where the current working directory is ~/build/FreeRDP.
 
@@ -531,18 +524,18 @@ CTest unit tests can be enabled with the BUILD_TESTING option.
 
 All unit tests can be executed by invoking ctest with no option:
 
-ctest .
+	ctest .
 
 Unit tests can be filtered by name using a regular expression and the –R option.
 
 To run all tests with a name beginning with “TestPath”, use:
 
-ctest –R “TestPath*” .
+	ctest –R “TestPath*” .
 
 To execute only the “TestPathCchAppend” test, use:
 
-ctest –R “TestPathCchAppend$” .
+	ctest –R “TestPathCchAppend$” .
 
 Debug output is turned off by default, but it can be enabled with the –V (verbose) option:
 
-ctest –V –R “TestPathCchAppend$” .
+	ctest –V –R “TestPathCchAppend$” .
