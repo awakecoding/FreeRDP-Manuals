@@ -1,5 +1,7 @@
 #!/usr/bin/perl
 
+# requires pandoc 1.10+
+
 sub pandoc_generate_pdf
 {
 	($DIR, $DOC) = @_;
@@ -9,6 +11,7 @@ sub pandoc_generate_pdf
 	print "Generating $DOC PDF...\n";
 
 	my $CMD = "pandoc $DOC.markdown " .
+		" -f markdown+pipe_tables " .
         	"--smart --normalize --number-sections --section-divs --toc " .
         	"--variable=links-as-notes:true --variable=documentclass:report --to=latex " .
         	"--variable=lang:english --variable=urlcolor:black --variable=linkcolor:black " .

@@ -4,6 +4,12 @@
 
 # Introduction
 
+## References
+
+[FreeRDP Developer Manual](https://github.com/awakecoding/FreeRDP-Manuals/blob/master/Configuration/FreeRDP-Developer-Manual.pdf?raw=true "FreeRDP Developer Manual")
+
+[FreeRDP Configuration Manual](https://github.com/awakecoding/FreeRDP-Manuals/blob/master/Configuration/FreeRDP-Configuration-Manual.pdf?raw=true "FreeRDP Configuration Manual")
+
 ## Help
 
 FreeRDP - A Free Remote Desktop Protocol Implementation
@@ -235,7 +241,7 @@ The comma-separated list is used because it provides unambiguous encoding of a l
 
 If even after reading this you can't get used to the windows-style syntax, simply make use of the posix-style syntax.
 
-## Authentication
+# Authentication
 
 Sample Values:
 
@@ -274,11 +280,11 @@ Passwords entered as command-line arguments could potentially be seen by other u
 	awake@workstation:~$ ps aux | grep freerdp
 	awake           22506   0.0  0.1  2502620  10236 s002  S+   11:10pm   0:01.00 xfreerdp /u:JohnDoe /p:************ /d:CONTOSO /v:rdp.contoso.com
 
-### Credentials Prompt
+## Credentials Prompt
 
 If you omit entering credentials at the command-line, FreeRDP may prompt you for credentials depending on the negotiated protocol security level.
 
-#### Protocol Security
+### Protocol Security
 
 RDP protocol security is confusing for many users because it strongly affects the way credentials can be prompted. There are three main security levels that can be negotiated:
 
@@ -286,7 +292,7 @@ RDP protocol security is confusing for many users because it strongly affects th
 * TLS Security (TLS encryption, old authentication)
 * NLA Security (TLS encryption, NLA authentication)
 
-##### Old Authentication
+#### Old Authentication
 
 The old RDP authentication mechanism is very simple: the server presents the client with the Winlogon GUI, and the user can either automatically or manually enter the credentials. If you enter credentials prior to connecting to a server with the old authentication, they will be automatically on connection, saving you the trouble of typing them manually.
 
@@ -294,7 +300,7 @@ Old RDP authentication may be practical in the sense that you can get a remote W
 
 ![Winlogon GUI](images/winlogon_gui.png "Winlogon GUI")
 
-##### Network Level Authentication (NLA)
+#### Network Level Authentication (NLA)
 
 Network Level Authentication (NLA) is required by default with servers starting with Windows Vista. With NLA, authentication is the very first thing that occurs over the wire, such that the server will only allocate resources and present a graphical interface to authenticated clients. It is also much more secure and provides strong defense mechanisms against Man-in-the-Middle (MITM) attacks.
 
@@ -304,39 +310,41 @@ When NLA is negotiated, the complete credentials are needed at connection time, 
 	connected to rdp.contoso.com
 	Password:
 
-## Performance Flags
+# Performance Flags
 
 The RDP performance flags are used by the client to tweak certain remote graphical operations affecting the user experience. A good example is the wallpaper: drawing it requires sending a lot of data as opposed to filling it with black. Using the wallpaper is fast enough on the LAN, but it may negatively affect performance over a slower connection such as over a cellular network. The same principle applies for themes, fonts, menu animations, window dragging, etc.
 
-### Smooth Fonts
+## Smooth Fonts
 
 Disabled by default, enable with +fonts. Regular RDP fonts are drawn and encoded separately from images sent over the wire, but they have the drawback of not being very crisp and clear. Enabling smooth fonts means you get easier to read and clearer characters (ClearType), but they are sent as images, which may be slower.
 
 ![With Smooth Fonts](images/with_smooth_fonts.png "With Smooth Fonts")
 ![Without Smooth Fonts](images/without_smooth_fonts.png "Without Smooth Fonts")
 
-### Desktop Composition
+## Desktop Composition
 
 Disabled by default, enable with +aero. This should not be confused with the desktop composition extension that redirects compositing calls for local rendering, a feature not supported by FreeRDP. This flag will only work in the few cases where compositing can be rendered over RemoteFX. As for now, this is only possible with Windows 7 SP1 on Hyper-V on Windows Server 2008 R2 SP1 with RemoteFX 3D.
 
-### Full Window Dragging
+## Full Window Dragging
 
 Disabled by default, enable with +window-drag. Dragging a window around is particularly intensive as it causes a lot of graphical updates (each time you move the window by one pixel, there is a large area of the screen that needs to be updated). To work around this problem, the server can draw the outline of the window as you drag it, and only draw the full window once you are done dragging it.
 
-### Menu Animations
+## Menu Animations
 
 Disabled by default, enable with +menu-anims. Just like window dragging, menu animations may cause a lot of successive graphical updates. Disabling it is a good idea.
 
-### Themes
+## Themes
 
 Enabled by default, disable with -themes. Rich themes usually require operations with bitmaps, while a classic theme can often be drawn with simple and efficient operations using plain colors. Disabling themes is worth it if you can stand the look & feel.
 
 ![With Themes](images/with_themes.png "With Themes")
 ![Without Themes](images/without_themes.png "Without Themes")
 
-### Wallpaper
+## Wallpaper
 
 Enabled by default, disable with -wallpaper. The wallpaper may look pretty but it is a large image that compresses less efficiently than a plain color background. Disabling it reduce rendering time for the background, which is particularly noticeable at connection time and when minimizing windows.
+
+# Redirection
 
 ## Drive Redirection
 
@@ -410,3 +418,140 @@ To enable sound redirection, use /sound:
 To enable audio input (recording), use /microphone:
 
 	xfreerdp /v:rdp.contoso.com /microphone
+
+# Registry Settings
+
+FreeRDP supports configuration through registry keys using the WinPR Registry API. On Windows, the native Windows registry is used. On other platforms, WinPR uses a simple .reg file.
+
+![FreeRDP Windows Registry Settings](images/windows_registry.png "FreeRDP Windows Registry Settings")
+
+Most settings are found under [HKEY_LOCAL_MACHINE\\Software\\FreeRDP] and [HKEY_LOCAL_MACHINE\\Software\\WinPR]. On Windows, use regedit.exe to edit the registry settings. On other operating systems, WinPR looks for a file called /etc/winpr/HKLM.reg. This file is in the .reg file format and can be edited manually with a text editor. On Windows, .reg files can be obtained by exporting a section of the registry in regedit.exe. To do so, right-click the key in the left pane and select Export. The resulting .reg file is shown in the above screenshot. This textual file can then serve as a template for non-Windows usage.
+
+On non-Windows systems, the /etc/winpr folder usually needs to be created manually. It is recommended to restrict permissions to this folder due to the sensitive nature of certain configuration settings. Current FreeRDP registry settings are all under HKEY_LOCAL_MACHINE, the registry hive meant for system-wide configuration. In the future, user-specific settings may be added under HKEY_LOCAL_USERS, but this has not been done yet.
+
+    sudo mkdir /etc/winpr
+    sudo nano /etc/winpr/HKLM.reg
+    
+![FreeRDP Linux Registry Settings](images/linux_registry.png "FreeRDP Linux Registry Settings")
+
+## .reg File Format
+
+The .reg file format is normally used for exporting and exporting registry settings, and is well described in the [Microsoft Knowledge Base Article 310516](http://support.microsoft.com/kb/310516 ""). It begins with a line containing the file format name and version number, followed by an empty line:
+
+    Windows Registry Editor Version 5.00
+
+Registry "keys" correspond to the folders in the registry hierarchy. A key can have subkeys or values. Each value in the registry is strongly typed. Common types are REG_DWORD, REG_BINARY, and REG_SZ.
+
+Here is a sample .reg file containing a test key with a subkey, and values of type REG_DWORD, REG_BINARY and REG_SZ:
+
+    Windows Registry Editor Version 5.00
+
+    [HKEY_LOCAL_MACHINE\SOFTWARE\FreeRDP\Test]
+    "DwordValue"=dword:0000007b
+    "StringValue"="this is a string"
+
+    [HKEY_LOCAL_MACHINE\SOFTWARE\FreeRDP\Test\Subkey]
+    "BinaryValue"=hex:aa,bb,cc,dd,ee,ff
+
+### REG_DWORD (Integer)
+
+REG_DWORD is a double word, or a 32-bit unsigned integer. It is used for numbers and also for boolean values. If the value is to be interpreted as boolean, 0 is considered FALSE and non-zero is considered TRUE. REG_DWORD values are formatted as 8 hexadecimal characters, so make sure to write a value in base 16 and not in base 10 when editing manually. In this case, 0000007b is hexadecimal for 123 in decimal.
+
+### REG_SZ (String)
+
+REG_SZ is a text string. Windows exports unicode strings as REG_BINARY.
+
+### REG_BINARY (Binary Data)
+
+REG_BINARY is either raw data or a unicode string. It is exported as a list of hexadecimal values separated by commas.
+
+## Client Settings
+
+    [HKEY_LOCAL_MACHINE\SOFTWARE\FreeRDP\Client]
+
+| Value                       | Type    | Description                                         |
+|-----------------------------|---------|-----------------------------------------------------|
+| DesktopWidth                | Integer | Default desktop width (/w)                          |
+| DesktopHeight               | Integer | Default desktop height (/h)                         |
+| Fullscreen                  | Boolean | Toggle Fullscreen mode (/f)                         |
+| ColorDepth                  | Integer | Default color depth (/bpp)                          |
+| KeyboardType                | Integer | Default keyboard type (/kbd-type)                   |
+| KeyboardSubType             | Integer | Default keyboard subtype (/kbd-subtype)             |
+| KeyboardFunctionKeys        | Integer | Default keyboard function keys (/kbd-fn-key)        |
+| KeyboardLayout              | Integer | Default keyboard layout id (/kbd)                   |
+| ExtSecurity                 | Boolean | Extended security (/sec-ext)                        |
+| NlaSecurity                 | Boolean | Toggle NLA security (/sec-nla)                      |
+| TlsSecurity                 | Boolean | Toggle TLS security (/sec-tls)                      |
+| RdpSecurity                 | Boolean | Toggle Standard RDP security (/sec-rdp)             |
+| MstscCookieMode             | Boolean | Toggle connection cookie truncation to 9 characters |
+| CookieMaxLength             | Integer | Maximum connection cookie length for truncation     |
+| BitmapCache                 | Boolean | Toggle bitmap cache (/bitmap-cache)                 |
+| OffscreenBitmapCache        | Boolean | Toggle offscreen bitmap cache (/offscreen-cache)    |
+| OffscreenBitmapCacheSize    | Integer | Offscreen bitmap cache size                         |
+| OffscreenBitmapCacheEntries | Integer | Offscreen bitmap cache entry count                  |
+| GlyphCache                  | Boolean | Toggle glyph cache (/glyph-cache)                   |
+
+    [HKEY_LOCAL_MACHINE\SOFTWARE\FreeRDP\Client\BitmapCacheV2]
+
+| Value                       | Type    | Description                                  |
+|-----------------------------|---------|----------------------------------------------|
+| NumCells                    | Integer | Number of cells in bitmap cache              |
+| Cell0NumEntries             | Integer | Number of entries in bitmap cache cell 0     |
+| Cell0Persistent             | Boolean | Toggle persistence for bitmap cache cell 0   |
+| Cell1NumEntries             | Integer | Number of entries in bitmap cache cell 1     |
+| Cell1Persistent             | Boolean | Toggle persistence for bitmap cache cell 1   |
+| Cell2NumEntries             | Integer | Number of entries in bitmap cache cell 2     |
+| Cell2Persistent             | Boolean | Toggle persistence for bitmap cache cell 2   |
+| Cell3NumEntries             | Integer | Number of entries in bitmap cache cell 3     |
+| Cell3Persistent             | Boolean | Toggle persistence for bitmap cache cell 3   |
+| Cell4NumEntries             | Integer | Number of entries in bitmap cache cell 4     |
+| Cell4Persistent             | Boolean | Toggle persistence for bitmap cache cell 4   |
+| AllowCacheWaitingList       | Boolean | Allow bitmap cache waiting list              |
+
+    [HKEY_LOCAL_MACHINE\SOFTWARE\FreeRDP\Client\GlyphCache]
+
+| Value                       | Type    | Description                                  |
+|-----------------------------|---------|----------------------------------------------|
+| SupportLevel                | Integer | Glyph cache support level                    |
+| Cache0NumEntries            | Integer | Number of entries in glyph cache cell 0      |
+| Cache0MaxCellSize           | Integer | Glyph cache cell 0 maximum size              |
+| Cache1NumEntries            | Integer | Number of entries in glyph cache cell 1      |
+| Cache1MaxCellSize           | Integer | Glyph cache cell 1 maximum size              |
+| Cache2NumEntries            | Integer | Number of entries in glyph cache cell 2      |
+| Cache2MaxCellSize           | Integer | Glyph cache cell 2 maximum size              |
+| Cache3NumEntries            | Integer | Number of entries in glyph cache cell 3      |
+| Cache3MaxCellSize           | Integer | Glyph cache cell 3 maximum size              |
+| Cache4NumEntries            | Integer | Number of entries in glyph cache cell 4      |
+| Cache4MaxCellSize           | Integer | Glyph cache cell 4 maximum size              |
+| Cache5NumEntries            | Integer | Number of entries in glyph cache cell 5      |
+| Cache5MaxCellSize           | Integer | Glyph cache cell 5 maximum size              |
+| Cache6NumEntries            | Integer | Number of entries in glyph cache cell 6      |
+| Cache6MaxCellSize           | Integer | Glyph cache cell 6 maximum size              |
+| Cache7NumEntries            | Integer | Number of entries in glyph cache cell 7      |
+| Cache7MaxCellSize           | Integer | Glyph cache cell 7 maximum size              |
+| Cache8NumEntries            | Integer | Number of entries in glyph cache cell 8      |
+| Cache8MaxCellSize           | Integer | Glyph cache cell 8 maximum size              |
+| Cache9NumEntries            | Integer | Number of entries in glyph cache cell 9      |
+| Cache9MaxCellSize           | Integer | Glyph cache cell 9 maximum size              |
+| FragCacheNumEntries         | Integer | Number of entries in glyph fragment cache    |
+| FragCacheMaxCellSize        | Integer | Glyph fragment cache cell maximum size       |
+
+    [HKEY_LOCAL_MACHINE\SOFTWARE\FreeRDP\Client\PointerCache]
+
+| Value                       | Type    | Description                                 |
+|-----------------------------|---------|---------------------------------------------|
+| LargePointer                | Boolean | Large pointer support                       |
+| ColorPointer                | Boolean | Color pointer support                       |
+| PointerCacheSize            | Integer | Pointer cache size                          |
+
+## Server Settings
+
+    [HKEY_LOCAL_MACHINE\SOFTWARE\FreeRDP\Server]
+
+| Value                      | Type    | Description                                  |
+|----------------------------|---------|----------------------------------------------|
+| ExtSecurity                | Boolean | Extended security                            |
+| NlaSecurity                | Boolean | Toggle NLA security                          |
+| TlsSecurity                | Boolean | Toggle TLS security                          |
+| RdpSecurity                | Boolean | Toggle Standard RDP security                 |
+

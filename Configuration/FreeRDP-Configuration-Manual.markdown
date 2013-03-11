@@ -12,7 +12,9 @@ To be expanded.
 
 ## References
 
-To be expanded.
+[FreeRDP User Manual](https://github.com/awakecoding/FreeRDP-Manuals/blob/master/User/FreeRDP-User-Manual.pdf?raw=true "FreeRDP User Manual")
+
+[FreeRDP Developer Manual](https://github.com/awakecoding/FreeRDP-Manuals/blob/master/Configuration/FreeRDP-Developer-Manual.pdf?raw=true "FreeRDP Developer Manual")
 
 # Network Tracing
 
@@ -30,25 +32,21 @@ MakeCert is a tool that is included with the Windows SDK or the Windows DDK that
 
 If you have the Windows DDK installed, makecert.exe can be found at:
 
-<DDK_path>\\WinDDK\\<version>\\bin\\<arch>\\makecert.exe
+    <DDK_path>\WinDDK\<version>\bin\<arch>\makecert.exe
 
 If you have the Windows SDK installed, makecert.exe can be found at:
 
-%programfiles%\\Microsoft SDKs\\Windows\\<version>\\bin\\makecert.exe
+    %programfiles%\Microsoft SDKs\Windows\<version>\bin\makecert.exe
 
 MakeCert is currently not distributed separately from the Windows DDK or the Windows SDK. Since it is a small and stand-alone tool, it can be easily copied to another machine without the need for installing large software development packages. Keeping a copy for later use can therefore save a lot of time when configuring new machines.
 
 To generate a self-signed certificate, invoke MakeCert with the following options:
 
-
-makecert -r -pe -n "CN=%COMPUTERNAME%" -eku 1.3.6.1.5.5.7.3.1 -ss my -sr LocalMachine -sky exchange -sp "Microsoft RSA SChannel Cryptographic Provider" -sy 12
-
+    makecert -r -pe -n "CN=%COMPUTERNAME%" -eku 1.3.6.1.5.5.7.3.1 -ss my -sr LocalMachine -sky exchange -sp "Microsoft RSA SChannel Cryptographic Provider" -sy 12
 
 %COMPUTERNAME% expands to the current computer name, which is normally what you want. The name following “CN=” should be the common name of the certificate. Choose it wisely, because a certificate for which the common name attribute does not match the hostname that the client uses to connect is normally rejected.
 
-
 MakeCert generates and import the certificate automatically, so do not expect to find a certificate file in the directory from which MakeCert has been executed. To get the certificate file, you will need to export it from the certificate store.
-
 
 * Launch MMC as an elevated user (can be done from an Administrator command prompt)
 * On the File menu, click Add/Remove Snap-in
@@ -69,54 +67,54 @@ MakeCert generates and import the certificate automatically, so do not expect to
 
 Create an OpenSSL extension file named “rdp.ext”
 	
-extensions = x509v3
-	
-[ x509v3 ]
-keyUsage = keyEncipherment,dataEncipherment
-extendedKeyUsage = serverAuth
+    extensions = x509v3
+    	
+    [ x509v3 ]
+    keyUsage = keyEncipherment,dataEncipherment
+    extendedKeyUsage = serverAuth
 	
 Create an OpenSSL config file named “rdp.cfg”:
 	
-[ req ]
-default_bits       = 2048
-distinguished_name = req_DN
-string_mask        = nombstr
+    [ req ]
+    default_bits       = 2048
+    distinguished_name = req_DN
+    string_mask        = nombstr
 
-[ req_DN ]
-countryName = "1. Country Name (2 letter code)"
-countryName_default = CA
-countryName_min = 2
-countryName_max = 2
-stateOrProvinceName = "2. State or Province Name (full name)      "
-stateOrProvinceName_default = Quebec
-localityName = "3. Locality Name (eg, city)       "
-localityName_default = Montreal
-0.organizationName = "4. Organization Name (eg, company)    "
-0.organizationName_default = Awake Coding Consulting Inc.
-organizationalUnitName = "5. Organization Unit Name (eg, section)    "
-commonName = "6. Common Name (CA name or FQDN)"
-commonName_max = 64
-commonName_default = awakecoding.com
-emailAddress = "7. Email Address (eg, name@FQDN)  "
-emailAddress_max = 40
-emailAddress_default = admin@awakecoding.com
+    [ req_DN ]
+    countryName = "1. Country Name (2 letter code)"
+    countryName_default = CA
+    countryName_min = 2
+    countryName_max = 2
+    stateOrProvinceName = "2. State or Province Name (full name)      "
+    stateOrProvinceName_default = Quebec
+    localityName = "3. Locality Name (eg, city)       "
+    localityName_default = Montreal
+    0.organizationName = "4. Organization Name (eg, company)    "
+    0.organizationName_default = Awake Coding Consulting Inc.
+    organizationalUnitName = "5. Organization Unit Name (eg, section)    "
+    commonName = "6. Common Name (CA name or FQDN)"
+    commonName_max = 64
+    commonName_default = awakecoding.com
+    emailAddress = "7. Email Address (eg, name@FQDN)  "
+    emailAddress_max = 40
+    emailAddress_default = admin@awakecoding.com
 
 Execute the following commands in the directory where rdp.ext and rdp.cfg are located:
 
-openssl genrsa –out rdp.key 2048
-openssl req -config rdp.cfg -new -key rdp.key -out rdp.csr
-openssl x509 -req -days 365 -extfile rdp.ext -signkey rdp.key -in rdp.csr -out rdp.crt 
-openssl pkcs12 -export -inkey rdp.key -in rdp.crt -out rdp.pfx
+    openssl genrsa –out rdp.key 2048
+    openssl req -config rdp.cfg -new -key rdp.key -out rdp.csr
+    openssl x509 -req -days 365 -extfile rdp.ext -signkey rdp.key -in rdp.csr -out rdp.crt 
+    openssl pkcs12 -export -inkey rdp.key -in rdp.crt -out rdp.pfx
 
 ## Certificate Conversion
 
 Convert from pfx to crt using OpenSSL:
 
-openssl pkcs12 -in rdp.pfx -clcerts –nodes -out rdp.crt
+    openssl pkcs12 -in rdp.pfx -clcerts –nodes -out rdp.crt
 
 Convert from crt to pfx using OpenSSL:
 
-openssl pkcs12 -export –in rdp.crt -inkey rdp.key –nodes -out rdp.pfx
+    openssl pkcs12 -export –in rdp.crt -inkey rdp.key –nodes -out rdp.pfx
 
 ## Certificate Installation
 
@@ -164,7 +162,7 @@ Obtain certificate thumbprint:
 Configure RDP server to use certificate:
 
 * Launch the Registry Editor (regedit.exe)
-* In the directory structure, browse to the following key: [HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\Terminal Server\\WinStations\\RDP-Tcp]
+* In the directory structure, browse to the following key:[HKEY_LOCAL_MACHINE\\System\\CurrentControlSet\\Control\\Terminal Server\\WinStations\\RDP-Tcp]
 * Right-click the RDP-Tcp key, point to New and click Binary Value. Name the new key SSLCertificateSHA1Hash
 * Right-click the SSLCertificateSHA1Hash key and click Modify Binary Data. In the Edit Binary Data dialog, type the thumbprint of the certificate to be used by the RDP server. As it is particularly easy to make a mistake in this step, double-check that you have entered the thumbprint properly, and click OK
 
@@ -189,30 +187,29 @@ Recent versions of Windows like Windows 8 will negotiate TLS 1.2 by default, a v
 
 #### Disabling TLS 1.1
 
-[HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\SCHANNEL\\Protocols\\TLS 1.1\\Client]
-"Enabled"=dword:00000000
-"DisabledByDefault"=dword:00000001
+    [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.1\Client]
+    "Enabled"=dword:00000000
+    "DisabledByDefault"=dword:00000001
 
-[HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\SCHANNEL\\Protocols\\TLS 1.1\\Server]
-"Enabled"=dword:00000000
-"DisabledByDefault"=dword:00000001
+    [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.1\Server]
+    "Enabled"=dword:00000000
+    "DisabledByDefault"=dword:00000001
 
 #### Disabling TLS 1.2
 
-[HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\SCHANNEL\\Protocols\\TLS 1.2\\Client]
-"Enabled"=dword:00000000
-"DisabledByDefault"=dword:00000001
+    [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\\Client]
+    "Enabled"=dword:00000000
+    "DisabledByDefault"=dword:00000001
 
-
-[HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\SCHANNEL\\Protocols\\TLS 1.2\\Server]
-"Enabled"=dword:00000000
-"DisabledByDefault"=dword:00000001
+    [HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Server]
+    "Enabled"=dword:00000000
+    "DisabledByDefault"=dword:00000001
 
 ### Compression
 
 To disable compression with mstsc, create a .rdp file and use the following option:
 
-compression:i:0
+    compression:i:0
 
 With FreeRDP, simply do not turn on compression, or explicitly turn it off either with a .rdp file or with the –compression command-line option.
 
@@ -220,7 +217,7 @@ With FreeRDP, simply do not turn on compression, or explicitly turn it off eithe
 
 To disable NLA with mstsc, create a .rdp file and use the following option:
 
-enablecredsspsupport:i:0
+    enablecredsspsupport:i:0
 
 To disable NLA with FreeRDP, you can use either the .rdp file or the –sec-nla command-line option.
 

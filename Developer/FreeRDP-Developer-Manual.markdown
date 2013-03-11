@@ -1,5 +1,6 @@
 % FreeRDP Developer Manual
 % Marc-André Moreau
+% Awake Coding Consulting Inc.
 
 # Introduction
 
@@ -9,7 +10,9 @@ To be expanded.
 
 ## References
 
-To be expanded.
+[FreeRDP User Manual](https://github.com/awakecoding/FreeRDP-Manuals/blob/master/User/FreeRDP-User-Manual.pdf?raw=true "FreeRDP User Manual")
+
+[FreeRDP Configuration Manual](https://github.com/awakecoding/FreeRDP-Manuals/blob/master/Configuration/FreeRDP-Configuration-Manual.pdf?raw=true "FreeRDP Configuration Manual")
 
 # Build Environment
 
