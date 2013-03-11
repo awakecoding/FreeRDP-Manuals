@@ -16,7 +16,7 @@ FreeRDP - A Free Remote Desktop Protocol Implementation
 
 See www.freerdp.com for more information
 
-	Usage: ./client/X11/xfreerdp [file] [options] [/v:<server>[:port]]
+	Usage: xfreerdp [file] [options] [/v:<server>[:port]]
 
 Syntax:
 
@@ -343,6 +343,203 @@ Enabled by default, disable with -themes. Rich themes usually require operations
 ## Wallpaper
 
 Enabled by default, disable with -wallpaper. The wallpaper may look pretty but it is a large image that compresses less efficiently than a plain color background. Disabling it reduce rendering time for the background, which is particularly noticeable at connection time and when minimizing windows.
+
+# Input
+
+Keyboard mapping is done on the remote end, so the local keyboard layout is ignored. Instead, a Windows keyboard layout id is provided at connection time to tell the server which keyboard layout to use.
+
+FreeRDP accepts either the numerical keyboard id or the full name of the corresponding keyboard layout:
+
+    xfreerdp /v:rdp.contoso.com /kbd:US
+    xfreerdp /v:rdp.contoso.com /kbd:0x409
+
+    xfreerdp /v:rdp.contoso.com "/kbd:Canadian Multilingual Standard"
+    xfreerdp /v:rdp.contoso.com /kbd:0x11009
+
+![Language Bar](images/language_bar.png "Language Bar")
+
+If no keyboard layout is specified, FreeRDP selects a keyboard layout based on local system settings. The Microsoft RDP server only accepts the keyboard layout on session creation: if you are reconnecting to an existing session, you will need to log out first.
+
+The list of keyboard layout ids can be shown by using /kbd-list:
+
+    xfreerdp /kbd-list
+    
+    Keyboard Layouts
+    0x00000401	Arabic (101)
+    0x00000402	Bulgarian
+    0x00000404	Chinese (Traditional) - US Keyboard
+    0x00000405	Czech
+    0x00000406	Danish
+    0x00000407	German
+    0x00000408	Greek
+    0x00000409	US
+    ....
+
+One can search for his own keyboard layout by combining the above command with grep:
+
+    xfreerdp /kbd-list | grep "Canadian"
+    0x00000C0C	Canadian French (legacy)
+    0x00001009	Canadian French
+    0x00011009	Canadian Multilingual Standard
+
+## Keyboard Layouts
+
+| Id         | Name                                   |
+|------------|----------------------------------------|
+| 0x00000401 | Arabic (101) |
+| 0x00000402 | Bulgarian |
+| 0x00000404 | Chinese (Traditional) - US Keyboard |
+| 0x00000405 | Czech |
+| 0x00000406 | Danish |
+| 0x00000407 | German |
+| 0x00000408 | Greek |
+| 0x00000409 | US |
+| 0x0000040A | Spanish |
+| 0x0000040B | Finnish |
+| 0x0000040C | French |
+| 0x0000040D | Hebrew |
+| 0x0000040E | Hungarian |
+| 0x0000040F | Icelandic |
+| 0x00000410 | Italian |
+| 0x00000411 | Japanese |
+| 0x00000412 | Korean |
+| 0x00000413 | Dutch |
+| 0x00000414 | Norwegian |
+| 0x00000415 | Polish (Programmers) |
+| 0x00000416 | Portuguese (Brazilian ABNT) |
+| 0x00000418 | Romanian |
+| 0x00000419 | Russian |
+| 0x0000041A | Croatian |
+| 0x0000041B | Slovak |
+| 0x0000041C | Albanian |
+| 0x0000041D | Swedish |
+| 0x0000041E | Thai Kedmanee |
+| 0x0000041F | Turkish Q |
+| 0x00000420 | Urdu |
+| 0x00000422 | Ukrainian |
+| 0x00000423 | Belarusian |
+| 0x00000424 | Slovenian |
+| 0x00000425 | Estonian |
+| 0x00000426 | Latvian |
+| 0x00000427 | Lithuanian IBM |
+| 0x00000429 | Farsi |
+| 0x0000042A | Vietnamese |
+| 0x0000042B | Armenian Eastern |
+| 0x0000042C | Azeri Latin |
+| 0x0000042F | FYRO Macedonian |
+| 0x00000437 | Georgian |
+| 0x00000438 | Faeroese |
+| 0x00000439 | Devanagari - INSCRIPT |
+| 0x0000043A | Maltese 47-key |
+| 0x0000043B | Norwegian with Sami |
+| 0x0000043F | Kazakh |
+| 0x00000440 | Kyrgyz Cyrillic |
+| 0x00000444 | Tatar |
+| 0x00000445 | Bengali |
+| 0x00000446 | Punjabi |
+| 0x00000447 | Gujarati |
+| 0x00000449 | Tamil |
+| 0x0000044A | Telugu |
+| 0x0000044B | Kannada |
+| 0x0000044C | Malayalam |
+| 0x0000044E | Marathi |
+| 0x00000450 | Mongolian Cyrillic |
+| 0x00000452 | United Kingdom Extended |
+| 0x0000045A | Syriac |
+| 0x00000461 | Nepali |
+| 0x00000463 | Pashto |
+| 0x00000465 | Divehi Phonetic |
+| 0x0000046E | Luxembourgish |
+| 0x00000481 | Maori |
+| 0x00000804 | Chinese (Simplified) - US Keyboard |
+| 0x00000807 | Swiss German |
+| 0x00000809 | United Kingdom |
+| 0x0000080A | Latin American |
+| 0x0000080C | Belgian French |
+| 0x00000813 | Belgian (Period) |
+| 0x00000816 | Portuguese |
+| 0x0000081A | Serbian (Latin) |
+| 0x0000082C | Azeri Cyrillic |
+| 0x0000083B | Swedish with Sami |
+| 0x00000843 | Uzbek Cyrillic |
+| 0x0000085D | Inuktitut Latin |
+| 0x00000C0C | Canadian French (legacy) |
+| 0x00000C1A | Serbian (Cyrillic) |
+| 0x00001009 | Canadian French |
+| 0x0000100C | Swiss French |
+| 0x0000141A | Bosnian |
+| 0x00001809 | Irish |
+| 0x0000201A | Bosnian Cyrillic |
+
+## Keyboard Layout Variants
+
+| Id         | Name                                   |
+|------------|----------------------------------------|
+| 0x00010401 | Arabic (102) |
+| 0x00010402 | Bulgarian (Latin) |
+| 0x00010405 | Czech (QWERTY) |
+| 0x00010407 | German (IBM) |
+| 0x00010408 | Greek (220) |
+| 0x00010409 | United States-Dvorak |
+| 0x0001040A | Spanish Variation |
+| 0x0001040E | Hungarian 101-key |
+| 0x00010410 | Italian (142) |
+| 0x00010415 | Polish (214) |
+| 0x00010416 | Portuguese (Brazilian ABNT2) |
+| 0x00010419 | Russian (Typewriter) |
+| 0x0001041B | Slovak (QWERTY) |
+| 0x0001041E | Thai Pattachote |
+| 0x0001041F | Turkish F |
+| 0x00010426 | Latvian (QWERTY) |
+| 0x00010427 | Lithuanian |
+| 0x0001042B | Armenian Western |
+| 0x00010439 | Hindi Traditional |
+| 0x0001043A | Maltese 48-key |
+| 0x0001043B | Sami Extended Norway |
+| 0x00010445 | Bengali (Inscript) |
+| 0x0001045A | Syriac Phonetic |
+| 0x00010465 | Divehi Typewriter |
+| 0x0001080C | Belgian (Comma) |
+| 0x0001083B | Finnish with Sami |
+| 0x00011009 | Canadian Multilingual Standard |
+| 0x00011809 | Gaelic |
+| 0x00020401 | Arabic (102) AZERTY |
+| 0x00020405 | Czech Programmers |
+| 0x00020408 | Greek (319) |
+| 0x00020409 | United States-International |
+| 0x0002041E | Thai Kedmanee (non-ShiftLock) |
+| 0x0002083B | Sami Extended Finland-Sweden |
+| 0x00030408 | Greek (220) Latin |
+| 0x00030409 | United States-Dvorak for left hand |
+| 0x0003041E | Thai Pattachote (non-ShiftLock) |
+| 0x00040408 | Greek (319) Latin |
+| 0x00040409 | United States-Dvorak for right hand |
+| 0x00050408 | Greek Latin |
+| 0x00050409 | US English Table for IBM Arabic 238_L |
+| 0x00060408 | Greek Polytonic |
+| 0xB0000407 | German Neo |
+
+## Keyboard Input Method Editors (IMEs)
+
+| Id         | Name                                   |
+|------------|----------------------------------------|
+| 0xE0010404 | Chinese (Traditional) - Phonetic |
+| 0xE0010411 | Japanese Input System (MS-IME2002) |
+| 0xE0010412 | Korean Input System (IME 2000) |
+| 0xE0010804 | Chinese (Simplified) - QuanPin |
+| 0xE0020404 | Chinese (Traditional) - ChangJie |
+| 0xE0020804 | Chinese (Simplified) - ShuangPin |
+| 0xE0030404 | Chinese (Traditional) - Quick |
+| 0xE0030804 | Chinese (Simplified) - ZhengMa |
+| 0xE0040404 | Chinese (Traditional) - Big5 Code |
+| 0xE0050404 | Chinese (Traditional) - Array |
+| 0xE0050804 | Chinese (Simplified) - NeiMa |
+| 0xE0060404 | Chinese (Traditional) - DaYi |
+| 0xE0070404 | Chinese (Traditional) - Unicode |
+| 0xE0080404 | Chinese (Traditional) - New Phonetic |
+| 0xE0090404 | Chinese (Traditional) - New ChangJie |
+| 0xE00E0804 | Chinese (Traditional) - Microsoft Pinyin IME 3.0 |
+| 0xE00F0404 | Chinese (Traditional) - Alphanumeric |
 
 # Redirection
 
