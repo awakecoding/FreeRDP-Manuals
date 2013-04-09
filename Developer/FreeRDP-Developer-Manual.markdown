@@ -270,8 +270,8 @@ https://github.com/guardianproject/android-external-openssl-ndk-static
 
 Further modifications to the OpenSSL sources have been made by the FreeRDP developers and can be found here:
 
-git://github.com/bmiklautz/android-external-openssl-ndk-static.git
-git://github.com/awakecoding/android-external-openssl-ndk-static.git
+	git://github.com/bmiklautz/android-external-openssl-ndk-static.git
+	git://github.com/awakecoding/android-external-openssl-ndk-static.git
 
 Clone the OpenSSL git repository in external/openssl in the root of the FreeRDP source tree:
 
@@ -291,6 +291,12 @@ You can optionally install OpenSSL globally by copying the headers and library f
 If OpenSSL is not installed globally, you will need to manually specify its path when invoking cmake with FREERDP_ANDROID_EXTERNAL_SSL_PATH.
 
 	cmake -DCMAKE_TOOLCHAIN_FILE=cmake/AndroidToolchain.cmake -DANDROID_NDK=/opt/android-ndk -DANDROID_SDK=/opt/android-sdk -DFREERDP_ANDROID_EXTERNAL_SSL_PATH=external/openssl .
+	
+If ANDROID_SDK and ANDROID_NDK are set as environment variables, they will be used by cmake, reducing the size of the command. If openssl is present in external/openssl, it will be used automatically by cmake:
+
+	export ANDROID_SDK=/opt/android-sdk
+	export ANDROID_NDK=/opt/android-ndk
+	cmake -DCMAKE_TOOLCHAIN_FILE=cmake/AndroidToolchain.cmake .
 
 #### iOS
 
