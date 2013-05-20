@@ -594,7 +594,13 @@ To be expanded.
 
 ## Printer Redirection
 
-To be expanded.
+To redirect all printers, use /printer:
+
+    xfreerdp /v:rdp.contoso.com /printer
+    
+On Linux and UNIX systems, CUPS is the printing backend used. An easy way to test printing without a physical printer is to install [CUPS-PDF](http://www.cups-pdf.de/ ""), a simple CUPS pdf printer.
+
+![FreeRDP Printer Redirection](images/freerdp_print_cups_pdf.png "FreeRDP Printer Redirection")
 
 ## Clipboard redirection
 
@@ -609,12 +615,38 @@ While clipboard redirection is supported in remote desktop mode, it is not yet s
 To enable sound redirection, use /sound:
 
 	xfreerdp /v:rdp.contoso.com /sound
+	
+To select a specific sound subsystem, use the sys:<subsystem> parameter:
+
+	xfreerdp /v:rdp.contoso.com /sound:sys:alsa
+	xfreerdp /v:rdp.contoso.com /sound:sys:pulse
+
+If you experience occasional sound skipping, you may try adjusting the sound latency with the latency:<milliseconds> parameter:
+
+	xfreerdp /v:rdp.contoso.com /sound:latency:400
+
+A short latency will give better audio and video synchronization but will have a shorter buffering time, which makes sound skipping more likely.
 
 ## Audio Recording
 
 To enable audio input (recording), use /microphone:
 
 	xfreerdp /v:rdp.contoso.com /microphone
+	
+To select a specific sound subsystem, use the sys:<subsystem> parameter:
+
+	xfreerdp /v:rdp.contoso.com /microphone:sys:alsa
+	xfreerdp /v:rdp.contoso.com /microphone:sys:pulse
+
+## Multitouch Input
+
+Multitouch redirection was introduced in RDP8 and is therefore only supported with Windows 8 and Windows Server 2012 servers. If you have a multitouch display, you can enable true multitouch redirection using /multitouch:
+
+	xfreerdp /v:rdp.contoso.com /multitouch
+	
+RDP8 multitouch is meant for *direct* touch devices like multitouch displays and not *dependent* touch devices like multitouch trackpads.
+
+![FreeRDP Multitouch Input](images/freerdp_multitouch.png "FreeRDP Multitouch Input")
 
 # Registry Settings
 
