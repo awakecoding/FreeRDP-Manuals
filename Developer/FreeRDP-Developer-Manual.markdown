@@ -14,6 +14,67 @@ To be expanded.
 
 [FreeRDP Configuration Manual](https://github.com/awakecoding/FreeRDP-Manuals/blob/master/Configuration/FreeRDP-Configuration-Manual.pdf?raw=true "FreeRDP Configuration Manual")
 
+## Getting Started
+
+### Linux
+
+#### Debian / Ubuntu
+
+FreeRDP:
+
+    sudo apt-get install \
+    build-essential git-core cmake \
+    libssl-dev \
+    libx11-dev libxext-dev libxinerama-dev libxcursor-dev libxkbfile-dev \
+    libxv-dev libxi-dev libxdamage-dev libxrender-dev libxrandr-dev \
+    libasound2-dev libcups2-dev libpulse-dev \
+    libavutil-dev libavcodec-dev \
+    libgstreamer0.10-dev libgstreamer-plugins-base0.10-dev
+
+#### (Open)SUSE
+
+
+FreeRDP:
+
+    sudo zypper install \
+    gcc git cmake \
+    libopenssl-devel \
+    libX11-devel libXext-devel libXinerama-devel libXcursor-devel libxkbfile-devel \
+    libXv-devel libXi-devel libXdamage-devel libXrender-devel libXrandr-devel \
+    libpulse-devel alsa-lib-devel cups-devel \
+    ffmpeg-devel libavutil-devel \
+    gstreamer-0_10-devel gstreamer-0_10-plugins-base-devel
+    
+ffmpeg and gstreamer development libraries are available in the [Restricted Formats](http://opensuse-community.org/Restricted_formats "Restricted Formats") community repository.
+
+xrdp-ng:
+
+    sudo zypper install \
+    libpciaccess-devel pam-devel libpng-devel libjpeg-devel intltool libexpat-devel \
+    libpixman-1-0-devel bison flex perl-libxml-perl freetype2-devel fontconfig-devel
+    
+#### CentOS / REHL / Fedora
+
+FreeRDP:
+
+    sudo yum install \
+    openssl-devel \
+    libX11-devel libXext-devel libXinerama-devel libXcursor-devel libxkbfile-devel \
+    libXv-devel libXtst-devel libXi-devel libXdamage-devel libXrandr-devel \
+    alsa-lib-devel cups-devel ffmpeg-devel
+    
+The version of cmake available in the CentOS repositories is too old, use a more recent version:
+
+    wget http://pkgs.repoforge.org/cmake/cmake-2.8.8-1.el6.rfx.x86_64.rpm
+    sudo rpm -i cmake-2.8.8-1.el6.rfx.x86_64.rpm
+
+xrdp-ng:
+
+    sudo yum install \
+    finger patch gcc gcc-c++ make autoconf libtool automake pkgconfig \
+    openssl-devel gettext file pam-devel libX11-devel libXfixes-devel libjpeg-devel \
+    flex bison libxslt perl-libxml-perl xorg-x11-font-utils xmlto-tex
+
 # Build Environment
 
 ## CMake Build System
@@ -518,10 +579,6 @@ WITH_JPEG: Build with JPEG codec support. This feature is not part of the canoni
 WITH_WIN8: Build with Windows 8 support. This is used by the Windows FreeRDP server and enables linking against Windows 8 libraries, therefore breaking backwards compatibility.
 
 # Testing
-
-## Cunit
-
-A cunit directory is present in the FreeRDP source tree. Building CUnit tests can be enabled with the WITH_CUNIT option. However, CUnit tests are deprecated, and current unit tests will eventually be migrated to CTest. New tests should NOT be written using CUnit.
 
 ### CTest
 
