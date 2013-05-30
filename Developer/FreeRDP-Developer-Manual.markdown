@@ -30,6 +30,12 @@ FreeRDP:
     libasound2-dev libcups2-dev libpulse-dev \
     libavutil-dev libavcodec-dev \
     libgstreamer0.10-dev libgstreamer-plugins-base0.10-dev
+    
+xrdp-ng:
+    
+    sudo apt-get install \
+    libpciaccess-dev libpam0g-dev libpng12-dev libjpeg-dev intltool libexpat1-dev libxml-libxml-perl \
+    libtool bison flex xsltproc libfreetype6-dev libfontconfig1-dev libpixman-1-dev xutils-dev
 
 #### (Open)SUSE
 
@@ -605,3 +611,63 @@ To execute only the “TestPathCchAppend” test, use:
 Debug output is turned off by default, but it can be enabled with the –V (verbose) option:
 
 	ctest –V –R “TestPathCchAppend$” .
+
+# xrdp-ng
+
+These instructions are preliminary for those who want to try xrdp-ng as it is being developed. If you are looking for a stable solution please look into xrdp instead.
+
+## Getting Started
+
+Install the dependencies for xrdp-ng as instructed in the FreeRDP section of this manual.
+
+Clone the awakecoding FreeRDP development repository:
+
+    mkdir ~/git/awakecoding
+    cd ~/git/awakecoding
+    git clone git://github.com/awakecoding/FreeRDP.git
+
+Clone the awakecoding xrdp-ng development repository in the server directory of the FreeRDP source tree:
+
+    cd ~/git/awakecoding/FreeRDP/server
+    git clone git://github.com/awakecoding/xrdp-ng.git
+    
+The FreeRDP git repository automatically ignores the server/xrdp-ng directory, such that you can manage the two git repositories independently. Ignoring xrdp-ng in the FreeRDP git repository prevents accidental commits where the xrdp-ng sources would be included.
+
+Follow the regular instructions for building FreeRDP, with the exception of a few extra options (WITH_SERVER, XRDP_NG_CORE). It is currently much easier to deploy xrdp-ng to a temporary directory in order to execute it. For the purpose of this example, let's use /opt/xrdp-ng as an installation prefix:
+
+    sudo mkdir /opt/xrdp-ng
+    sudo chmod 777 /opt/xrdp-ng
+    
+When generating project files with cmake, specify the prefix using -DCMAKE_INSTALL_PREFIX=/opt/xrdp-ng:
+
+    cmake -DWITH_SERVER=on -DXRDP_NG_CORE=on -DCMAKE_INSTALL_PREFIX=/opt/xrdp-ng .
+    
+Then always execute "make install" after building and launch xrdp-ng from its installed location. Executing from the source tree may be properly supported in the future but for now it is not recommended.
+
+### X11rdp
+
+X11rdp is a complete X11 server that communicates with xrdp-ng over a local unix domain socket. It can be built separately from xrdp-ng but it is needed at runtime for xrdp-ng-sesman.
+
+Create a directory for the X11rdp component of xrdp-ng with proper user rights:
+
+    sudo mkdir /opt/X11rdp
+    sudo chmod 777 /opt/X11rdp
+    sudo ln -s /opt/X11rdp/bin/X11rdp /usr/local/bin/X11rdp
+    
+Move to the xorg/X11R7.6 directory of the xrdp-ng repository, and generate makefiles:
+
+    cd ~/git/awakecoding/FreeRDP/server/xrdp-ng
+    cd xorg/X11R7.6
+    cmake .
+    
+The resulting cmake output will show about a hundred components that will be downloaded, configured, built and installed as part of X11rdp. Type "make" and go grab a coffee, as it will take a while.
+
+Once all the dependencies for X11rdp are downloaded, built and installed, move the the xorg/rdp directory, generate project files, and build:
+
+    cd rdp
+    cmake -DCMAKE_INSTALL_PREFIX=/opt/X11rdp .
+    make
+    make install
+
+This will generate a simple project file that adds the custom RDP source code to the base xorg-server package that was downloaded and built by the previous script. The resulting binary is X11rdp.
+
