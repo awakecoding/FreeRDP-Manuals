@@ -79,7 +79,7 @@ xrdp-ng:
     sudo yum install \
     finger patch gcc gcc-c++ make autoconf libtool automake pkgconfig \
     openssl-devel gettext file pam-devel libX11-devel libXfixes-devel libjpeg-devel \
-    flex bison libxslt perl-libxml-perl xorg-x11-font-utils xmlto-tex
+    flex bison libxslt perl-libxml-perl xorg-x11-font-utils xmlto-tex docbook-utils-pdf
 
 # Build Environment
 
@@ -640,7 +640,7 @@ Follow the regular instructions for building FreeRDP, with the exception of a fe
     
 When generating project files with cmake, specify the prefix using -DCMAKE_INSTALL_PREFIX=/opt/xrdp-ng:
 
-    cmake -DWITH_SERVER=on -DXRDP_NG_CORE=on -DCMAKE_INSTALL_PREFIX=/opt/xrdp-ng .
+    cmake -DWITH_SERVER=on -DCMAKE_INSTALL_PREFIX=/opt/xrdp-ng .
     
 Then always execute "make install" after building and launch xrdp-ng from its installed location. Executing from the source tree may be properly supported in the future but for now it is not recommended.
 
@@ -657,7 +657,7 @@ Create a directory for the X11rdp component of xrdp-ng with proper user rights:
 Move to the xorg/X11R7.6 directory of the xrdp-ng repository, and generate makefiles:
 
     cd ~/git/awakecoding/FreeRDP/server/xrdp-ng
-    cd xorg/X11R7.6
+    cd xorg/X11R7.7
     cmake .
     
 The resulting cmake output will show about a hundred components that will be downloaded, configured, built and installed as part of X11rdp. Type "make" and go grab a coffee, as it will take a while.
