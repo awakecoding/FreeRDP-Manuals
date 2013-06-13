@@ -783,4 +783,5 @@ REG_BINARY is either raw data or a unicode string. It is exported as a list of h
 | NlaSecurity                | Boolean | Toggle NLA security                          |
 | TlsSecurity                | Boolean | Toggle TLS security                          |
 | RdpSecurity                | Boolean | Toggle Standard RDP security                 |
-
+| CertificateFile            | String  | Absolute path to x509 certificate file       |
+| PrivateKeyFile             | String  | Absolute path to x509 key file               |
