@@ -674,6 +674,10 @@ Download the sources in server/xrdp-ng/xorg, extract them, and rename the direct
     tar jxvf xorg-server-1.13.2.tar.bz2
     mv xorg-server-1.13.2 xorg-server
 
+### Ubuntu
+
+    sudo apt-get build-dep xorg-server
+
 ### OpenSUSE
 
 To install all development packages required to a build a specific package, use the zypper si (source-install) command:
