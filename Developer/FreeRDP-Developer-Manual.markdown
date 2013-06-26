@@ -634,49 +634,47 @@ Clone the awakecoding xrdp-ng development repository in the server directory of 
     
 The FreeRDP git repository automatically ignores the server/xrdp-ng directory, such that you can manage the two git repositories independently. Ignoring xrdp-ng in the FreeRDP git repository prevents accidental commits where the xrdp-ng sources would be included.
 
-Follow the regular instructions for building FreeRDP, with the exception of a few extra options (WITH_SERVER, XRDP_NG_CORE). It is currently much easier to deploy xrdp-ng to a temporary directory in order to execute it. For the purpose of this example, let's use /opt/xrdp-ng as an installation prefix:
+Follow the regular instructions for building FreeRDP, with the exception of a few extra options (WITH_SERVER, WITH_X11RDP). It is currently much easier to deploy xrdp-ng to a temporary directory in order to execute it. For the purpose of this example, let's use /opt/xrdp-ng as an installation prefix:
 
     sudo mkdir /opt/xrdp-ng
     sudo chmod 777 /opt/xrdp-ng
-    
-When generating project files with cmake, specify the prefix using -DCMAKE_INSTALL_PREFIX=/opt/xrdp-ng:
 
-    cmake -DWITH_SERVER=on -DCMAKE_INSTALL_PREFIX=/opt/xrdp-ng .
-    
-Then always execute "make install" after building and launch xrdp-ng from its installed location. Executing from the source tree may be properly supported in the future but for now it is not recommended.
+Create a symlink for your X11rdp executable:
+
+    sudo ln -s /opt/xrdp-ng/bin/X11rdp /usr/local/bin/X11rdp
 
 ## X11rdp
 
-### Standalone Build
+X11rdp is an alternative X11 server like Xvnc, Xephyr, Xnest and Xvb. Normally, these servers are built alongside Xorg with the xorg-server sources as they make use of internal APIs and libraries that are not installed. To build X11rdp, we need to build the xorg-server sources in a known directory such that we can include them in our cmake project.
 
-X11rdp is a complete X11 server that communicates with xrdp-ng over a local unix domain socket. It can be built separately from xrdp-ng but it is needed at runtime for xrdp-ng-sesman.
+The generic approach is to install all the distribution-provided packages required to build the xorg-server package from source. You can then obtain the distribution-sources for the xorg-server package or obtain vanilla sources corresponding to the same version. To determine your current xorg-server version, you can use "X -version":
 
-Create a directory for the X11rdp component of xrdp-ng with proper user rights:
+    X -version
 
-    sudo mkdir /opt/X11rdp
-    sudo chmod 777 /opt/X11rdp
-    sudo ln -s /opt/X11rdp/bin/X11rdp /usr/local/bin/X11rdp
-    
-Move to the xorg/X11R7.6 directory of the xrdp-ng repository, and generate makefiles:
+    X.Org X Server 1.13.2
+    Release Date: 2013-01-24
+    X Protocol Version 11, Revision 0
+    Build Operating System: openSUSE SUSE LINUX
+    Current Operating System: Linux system76.site 3.7.10-1.16-desktop #1 SMP PREEMPT Fri May 31 20:21:23 UTC 2013 (97c14ba) x86_64
+    Kernel command line: BOOT_IMAGE=/boot/vmlinuz-3.7.10-1.16-desktop root=UUID=04389d94-a4ad-4eae-9cfc-31c250157ab8 resume=/dev/disk/by-id/ata-M4-CT512M4SSD2_000000001243091A26D8-part5 splash=silent quiet showopts
+    Build Date: 30 April 2013  08:24:17AM
+ 
+    Current version of pixman: 0.28.2
+            Before reporting problems, check http://wiki.x.org
+            to make sure that you have the latest version.
 
-    cd ~/git/awakecoding/FreeRDP/server/xrdp-ng
-    cd xorg/X11R7.7
-    cmake .
-    
-The resulting cmake output will show about a hundred components that will be downloaded, configured, built and installed as part of X11rdp. Type "make" and go grab a coffee, as it will take a while.
+For the current example, the version is 1.13.2. The source tarball can be obtained for the xorg website:
 
-Once all the dependencies for X11rdp are downloaded, built and installed, move the the xorg/rdp directory, generate project files, and build:
+    http://xorg.freedesktop.org/releases/individual/xserver/xorg-server-1.13.2.tar.bz2
 
-    cd rdp
-    cmake -DCMAKE_INSTALL_PREFIX=/opt/X11rdp .
-    make
-    make install
+Download the sources in server/xrdp-ng/xorg, extract them, and rename the directory to xorg-server:
 
-This will generate a simple project file that adds the custom RDP source code to the base xorg-server package that was downloaded and built by the previous script. The resulting binary is X11rdp.
+    cd ~git/awakecoding/FreeRDP/server/xrdp-ng/xorg
+    wget http://xorg.freedesktop.org/releases/individual/xserver/xorg-server-1.13.2.tar.bz2
+    tar jxvf xorg-server-1.13.2.tar.bz2
+    mv xorg-server-1.13.2 xorg-server
 
-### OpenSUSE Build
-
-Building an entire X11 distribution is very impractical. It is possible to build X11rdp against the distribution-provided xorg-server sources. These instructions for OpenSUSE are preliminary.
+### OpenSUSE
 
 To install all development packages required to a build a specific package, use the zypper si (source-install) command:
 
@@ -697,27 +695,7 @@ Move to the xorg directory and copy the distribution-provided sources there:
     tar jxvf xorg-server-1.13.2.tar.bz2
     mv xorg-server-1.13.2 xorg-server
 
-Now move to the xorg-server directory, configure and build the sources:
-
-    cd xorg-server
-    ./configure --prefix=/usr
-    make
-
-Make sure to use the same configure options as the corresponding xorg-server package. A different install prefix can seemingly unrelated issues like XKB initialization failure.
-
-Next, move to the rdp directory that contains the extension to the base xorg-server sources, generate project files and build:
-
-    cd ../rdp
-    cmake .
-    make
-
-CMake will look for the xorg-server sources in ../xorg-server. It will bundle and link against internal libraries built as part of xorg-server that aren't normally installed or distributed. It will also include private headers needed for custom servers.
-
-Before executing xrdp-ng, you will need to install the X11rdp executable:
-
-    sudo make install
-
-### CentOS Build
+### CentOS
 
 Download and install all development packages required to build xorg-x11-server package:
 
@@ -733,21 +711,22 @@ Find the corresponding xorg-x11-server source rpm on vault.centos.org.
     tar jxvf xorg-server-*.tar.bz2
     mv xorg-server-1.13.0 xorg-server
 
-Configure and build the distribution-provided xorg-server sources:
+## Building
 
-    cd xorg-server
+Configure and build the xorg-server sources, but don't install them. CMake will include and link against private headers and libraries from the local xorg-server build. For this reason, you need to prepare xorg-server prior to generating CMake project files.
+
+    cd ~/git/awakecoding/FreeRDP/server/xrdp-ng
+    cd xorg/xorg-server
     ./configure --prefix=/usr --with-sha1=libcrypto
     make
 
-Next, move to the rdp directory that contains the extension to the base xorg-server sources, generate project files and build:
+You only need to build the xorg-server sources once. CMake will import what it needs but leave the original xorg-server sources untouched.
 
-    cd ../rdp
-    cmake .
-    make
+When generating project files with cmake, specify the prefix using -DCMAKE_INSTALL_PREFIX=/opt/xrdp-ng:
 
-Before executing xrdp-ng, you will need to install the X11rdp executable:
-
-    sudo make install
+    cmake -DWITH_SERVER=on -DWITH_X11rdp=on -DCMAKE_INSTALL_PREFIX=/opt/xrdp-ng .
+    
+Then always execute "make install" after building and launch xrdp-ng from its installed location. Executing from the source tree may be properly supported in the future but for now it is not recommended.
 
 ## Running
 
