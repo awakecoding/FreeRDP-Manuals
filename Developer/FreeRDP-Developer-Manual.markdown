@@ -676,7 +676,13 @@ Download the sources in server/xrdp-ng/xorg, extract them, and rename the direct
 
 ### Ubuntu
 
+Install build dependencies for the xorg-server sources:
+
     sudo apt-get build-dep xorg-server
+
+Starting with Ubuntu 13.04, the Unity 2D fallback is no longer installed by default. At this point xrdp-ng does not work properly with Unity 3D so you'll need to install and use Unity 2D:
+
+    sudo apt-get install gnome-session-fallback
 
 ### OpenSUSE
 
@@ -752,3 +758,8 @@ In the second one, execute xrdp-ng-sesman:
 
 There are easier ways of executing xrdp-ng but this manual execution method is more flexible for development purposes.
 
+You can then connect locally:
+
+    ./bin/xfreerdp /u:username /p:password /cert-ignore /v:localhost
+    ./bin/xfreerdp /u:username /p:password /cert-ignore /v:localhost /max-fast-path-size:100000000 /rfx
+    ./bin/xfreerdp /u:username /p:password /cert-ignore /v:localhost /max-fast-path-size:100000000 /nsc /bpp:32
