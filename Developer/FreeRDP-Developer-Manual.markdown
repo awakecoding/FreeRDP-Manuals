@@ -663,7 +663,7 @@ The generic approach is to install all the distribution-provided packages requir
             Before reporting problems, check http://wiki.x.org
             to make sure that you have the latest version.
 
-For the current example, the version is 1.13.2. The source tarball can be obtained for the xorg website:
+For the current example, the version is 1.13.2. The vanilla source tarball can be obtained for the xorg website:
 
     http://xorg.freedesktop.org/releases/individual/xserver/xorg-server-1.13.2.tar.bz2
 
@@ -674,11 +674,18 @@ Download the sources in server/xrdp-ng/xorg, extract them, and rename the direct
     tar jxvf xorg-server-1.13.2.tar.bz2
     mv xorg-server-1.13.2 xorg-server
 
-### Ubuntu
+### Ubuntu and Debian
+The following instructions are tested on ubuntu 13.04 and debian wheezy. $XVERSION is the version of the distributed package.
 
 Install build dependencies for the xorg-server sources:
 
-    sudo apt-get build-dep xorg-server
+    sudo apt-get build-dep xorg-server xserver-xorg-core
+ 
+Get the source of the distributed package and prepare it:
+
+    cd server/xrdp-ng/xorg
+    apt-get source xserver-xorg-core
+    ln -s xorg-server-$VERSION xorg-server
 
 Starting with Ubuntu 13.04, the Unity 2D fallback is no longer installed by default. At this point xrdp-ng does not work properly with Unity 3D so you'll need to install and use Unity 2D:
 
@@ -722,7 +729,8 @@ Find the corresponding xorg-x11-server source rpm on vault.centos.org.
     mv xorg-server-1.13.0 xorg-server
 
 ## Building
-
+### Xorg 
+#### Generic
 Configure and build the xorg-server sources, but don't install them. CMake will include and link against private headers and libraries from the local xorg-server build. For this reason, you need to prepare xorg-server prior to generating CMake project files.
 
     cd ~/git/awakecoding/FreeRDP/server/xrdp-ng
@@ -731,6 +739,27 @@ Configure and build the xorg-server sources, but don't install them. CMake will 
     make
 
 You only need to build the xorg-server sources once. CMake will import what it needs but leave the original xorg-server sources untouched.
+
+#### Ubuntu and Debian
+If you use the Debian/Ubuntu package you might want to build with the same patches and configuration as the package was build for the distribution.
+
+    cd server/xrdp-ng/xorg/xorg-server
+    ./debian/rules build
+
+This creates all required files in server/xrdp-ng/xorg/xorg-server/build-main.
+To use this "out of tree" some configuration needs to be done in 
+server/xrdp-ng/xorg/rdp/CMakeLists.txt:
+
+Set XOBJBASE_RELATIVE to ../xorg-server/build-main instead of ../xorg-server (at the top around line 14):
+ 
+    set(XOBJBASE_RELATIVE "../xorg-server/build-main")
+
+Finally add the following line after the final target_link_libraries (before the install command somewhere around line 266):
+
+    target_link_libraries(${MODULE_NAME} -lselinux -laudit -lgcrypt
+    
+
+### Xrdp
 
 When generating project files with cmake, specify the prefix using -DCMAKE_INSTALL_PREFIX=/opt/xrdp-ng:
 
