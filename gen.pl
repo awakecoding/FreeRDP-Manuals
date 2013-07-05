@@ -27,8 +27,8 @@ sub pandoc_generate_pdf
 	print "Done!\n";
 }
 
-$USR_DIR = "User";
-$USR_DOC = "FreeRDP-User-Manual";
+$USER_DIR = "User";
+$USER_DOC = "FreeRDP-User-Manual";
 
 $DEV_DIR = "Developer";
 $DEV_DOC = "FreeRDP-Developer-Manual";
@@ -36,11 +36,14 @@ $DEV_DOC = "FreeRDP-Developer-Manual";
 $CFG_DIR = "Configuration";
 $CFG_DOC = "FreeRDP-Configuration-Manual";
 
+$TEST_DIR = "Testing";
+$TEST_DOC = "FreeRDP-Testing-Manual";
+
 @DIRS = ();
 @DOCS = ();
 
 foreach $i (0 .. $#ARGV) {
-	if ($ARGV[$i] =~ m/^usr$/) {
+	if ($ARGV[$i] =~ m/^user$/) {
 		push(@DIRS, $USR_DIR);
 		push(@DOCS, $USR_DOC);
 	} elsif ($ARGV[$i] =~ m/^dev$/) {
@@ -49,12 +52,15 @@ foreach $i (0 .. $#ARGV) {
 	} elsif ($ARGV[$i] =~ m/^cfg$/) {
 		push(@DIRS, $CFG_DIR);
 		push(@DOCS, $CFG_DOC);
+	} elsif ($ARGV[$i] =~ m/^test$/) {
+		push(@DIRS, $TST_DIR);
+		push(@DOCS, $TST_DOC);
 	}
 }
 
 if ($#ARGV eq -1) {
-	@DIRS = ($USR_DIR, $DEV_DIR, $CFG_DIR);
-	@DOCS = ($USR_DOC, $DEV_DOC, $CFG_DOC);
+	@DIRS = ($USER_DIR, $DEV_DIR, $CFG_DIR, $TEST_DIR);
+	@DOCS = ($USER_DOC, $DEV_DOC, $CFG_DOC, $TEST_DOC);
 }
 
 foreach (@DOCS) {

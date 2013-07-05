@@ -14,6 +14,8 @@ To be expanded.
 
 [FreeRDP Configuration Manual](https://github.com/awakecoding/FreeRDP-Manuals/blob/master/Configuration/FreeRDP-Configuration-Manual.pdf?raw=true "FreeRDP Configuration Manual")
 
+[FreeRDP Testing Manual](https://github.com/awakecoding/FreeRDP-Manuals/blob/master/Testing/FreeRDP-Testing-Manual.pdf?raw=true "FreeRDP Testing Manual")
+
 ## Getting Started
 
 ### Linux

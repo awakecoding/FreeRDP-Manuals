@@ -16,6 +16,8 @@ To be expanded.
 
 [FreeRDP Developer Manual](https://github.com/awakecoding/FreeRDP-Manuals/blob/master/Configuration/FreeRDP-Developer-Manual.pdf?raw=true "FreeRDP Developer Manual")
 
+[FreeRDP Testing Manual](https://github.com/awakecoding/FreeRDP-Manuals/blob/master/Testing/FreeRDP-Testing-Manual.pdf?raw=true "FreeRDP Testing Manual")
+
 # Network Tracing
 
 ## Introduction
