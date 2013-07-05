@@ -729,18 +729,22 @@ Find the corresponding xorg-x11-server source rpm on vault.centos.org.
     mv xorg-server-1.13.0 xorg-server
 
 ## Building
+
 ### Xorg 
+
 #### Generic
+
 Configure and build the xorg-server sources, but don't install them. CMake will include and link against private headers and libraries from the local xorg-server build. For this reason, you need to prepare xorg-server prior to generating CMake project files.
 
     cd ~/git/awakecoding/FreeRDP/server/xrdp-ng
     cd xorg/xorg-server
-    ./configure --prefix=/usr --with-sha1=libcrypto
+    ./configure --prefix=/usr --with-sha1=libcrypto --disable-dpms
     make
 
 You only need to build the xorg-server sources once. CMake will import what it needs but leave the original xorg-server sources untouched.
 
 #### Ubuntu and Debian
+
 If you use the Debian/Ubuntu package you might want to build with the same patches and configuration as the package was build for the distribution.
 
     cd server/xrdp-ng/xorg/xorg-server
@@ -757,13 +761,12 @@ Set XOBJBASE_RELATIVE to ../xorg-server/build-main instead of ../xorg-server (at
 Finally add the following line after the final target_link_libraries (before the install command somewhere around line 266):
 
     target_link_libraries(${MODULE_NAME} -lselinux -laudit -lgcrypt
-    
 
 ### Xrdp
 
 When generating project files with cmake, specify the prefix using -DCMAKE_INSTALL_PREFIX=/opt/xrdp-ng:
 
-    cmake -DWITH_SERVER=on -DWITH_X11rdp=on -DCMAKE_INSTALL_PREFIX=/opt/xrdp-ng .
+    cmake -DWITH_SERVER=on -DWITH_X11RDP=on -DCMAKE_INSTALL_PREFIX=/opt/xrdp-ng .
     
 Then always execute "make install" after building and launch xrdp-ng from its installed location. Executing from the source tree may be properly supported in the future but for now it is not recommended.
 
@@ -791,4 +794,4 @@ You can then connect locally:
 
     ./bin/xfreerdp /u:username /p:password /cert-ignore /v:localhost
     ./bin/xfreerdp /u:username /p:password /cert-ignore /v:localhost /max-fast-path-size:100000000 /rfx
-    ./bin/xfreerdp /u:username /p:password /cert-ignore /v:localhost /max-fast-path-size:100000000 /nsc /bpp:32
+    ./bin/xfreerdp /u:username /p:password /cert-ignore /v:localhost /max-fast-path-size:100000000 /nsc
