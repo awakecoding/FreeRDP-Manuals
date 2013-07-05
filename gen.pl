@@ -44,8 +44,8 @@ $TEST_DOC = "FreeRDP-Testing-Manual";
 
 foreach $i (0 .. $#ARGV) {
 	if ($ARGV[$i] =~ m/^user$/) {
-		push(@DIRS, $USR_DIR);
-		push(@DOCS, $USR_DOC);
+		push(@DIRS, $USER_DIR);
+		push(@DOCS, $USER_DOC);
 	} elsif ($ARGV[$i] =~ m/^dev$/) {
 		push(@DIRS, $DEV_DIR);
 		push(@DOCS, $DEV_DOC);
@@ -53,8 +53,8 @@ foreach $i (0 .. $#ARGV) {
 		push(@DIRS, $CFG_DIR);
 		push(@DOCS, $CFG_DOC);
 	} elsif ($ARGV[$i] =~ m/^test$/) {
-		push(@DIRS, $TST_DIR);
-		push(@DOCS, $TST_DOC);
+		push(@DIRS, $TEST_DIR);
+		push(@DOCS, $TEST_DOC);
 	}
 }
 
