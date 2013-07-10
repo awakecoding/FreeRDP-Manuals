@@ -207,6 +207,13 @@ Recent versions of Windows like Windows 8 will negotiate TLS 1.2 by default, a v
     "Enabled"=dword:00000000
     "DisabledByDefault"=dword:00000001
 
+### UDP Transport
+
+On Windows 8 and newer, disable UDP transport:
+
+    [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Terminal Server Client]
+    "DisableUDPTransport"=dword:00000001
+
 ### Compression
 
 To disable compression with mstsc, create a .rdp file and use the following option:
@@ -214,6 +221,32 @@ To disable compression with mstsc, create a .rdp file and use the following opti
     compression:i:0
 
 With FreeRDP, simply do not turn on compression, or explicitly turn it off either with a .rdp file or with the –compression command-line option.
+
+If you want to force a specific version of the compression, the MaxRdpCompressionLevel registry key can be used:
+
+    [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Terminal Server Client]
+    "MaxRdpCompressionLevel"=dword:00000000
+
+| MaxRdpCompressionLevel | Protocol Version  |
+|------------------------|-------------------|
+|           0            | RDP4 (8K)         |
+|           1            | RDP5 (64K)        |
+|           2            | RDP6 (64K NCRUSH) |
+|           3            | RDP6.1 (XCRUSH)   |
+|           4            | RDP8              |
+
+### RDP Security
+
+When using RDP security, lowering the encryption level may be useful:
+
+    [HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services]
+    "MinEncryptionLevel"=dword:00000001
+
+| Value | Level  |
+|-------|--------|
+|  0    | Low    |
+|  1    | Medium |
+|  2    | High   |
 
 ### Network Level Authentication
 
