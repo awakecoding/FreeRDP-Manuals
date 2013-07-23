@@ -602,6 +602,8 @@ To redirect all printers, use /printer:
     
 On Linux and UNIX systems, CUPS is the printing backend used. An easy way to test printing without a physical printer is to install [CUPS-PDF](http://www.cups-pdf.de/ ""), a simple CUPS pdf printer.
 
+Under normal circumstances, if your printer is properly configured with CUPS on the client, it should be picked up by FreeRDP and redirected properly. If you are looking for recommendations on a printer which works well with major operating systems (Windows, Linux, Mac OS X) the HP LaserJet Pro P1606dn is a good choice.
+
 ![FreeRDP Printer Redirection](images/freerdp_print_cups_pdf.png "FreeRDP Printer Redirection")
 
 ## Clipboard redirection

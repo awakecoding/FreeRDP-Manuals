@@ -623,17 +623,17 @@ These instructions are preliminary for those who want to try xrdp-ng as it is be
 
 Install the dependencies for xrdp-ng as instructed in the FreeRDP section of this manual.
 
-Clone the awakecoding FreeRDP development repository:
+Clone the FreeRDP repository with the xrdp-ng development branch:
 
-    mkdir ~/git/awakecoding
-    cd ~/git/awakecoding
-    git clone git://github.com/awakecoding/FreeRDP.git
+    mkdir ~/git/FreeRDP
+    cd ~/git/FreeRDP
+    git clone git://github.com/FreeRDP/FreeRDP.git -b xrdp-ng
 
-Clone the awakecoding xrdp-ng development repository in the server directory of the FreeRDP source tree:
+Clone the xrdp-ng development repository in the server directory of the FreeRDP source tree:
 
-    cd ~/git/awakecoding/FreeRDP/server
-    git clone git://github.com/awakecoding/xrdp-ng.git
-    
+    cd ~/git/FreeRDP/FreeRDP/server
+    git clone git://github.com/FreeRDP/xrdp-ng.git
+
 The FreeRDP git repository automatically ignores the server/xrdp-ng directory, such that you can manage the two git repositories independently. Ignoring xrdp-ng in the FreeRDP git repository prevents accidental commits where the xrdp-ng sources would be included.
 
 Follow the regular instructions for building FreeRDP, with the exception of a few extra options (WITH_SERVER, WITH_X11RDP). It is currently much easier to deploy xrdp-ng to a temporary directory in order to execute it. For the purpose of this example, let's use /opt/xrdp-ng as an installation prefix:
@@ -671,7 +671,7 @@ For the current example, the version is 1.13.2. The vanilla source tarball can b
 
 Download the sources in server/xrdp-ng/xorg, extract them, and rename the directory to xorg-server:
 
-    cd ~git/awakecoding/FreeRDP/server/xrdp-ng/xorg
+    cd ~/git/awakecoding/FreeRDP/server/xrdp-ng/xorg
     wget http://xorg.freedesktop.org/releases/individual/xserver/xorg-server-1.13.2.tar.bz2
     tar jxvf xorg-server-1.13.2.tar.bz2
     mv xorg-server-1.13.2 xorg-server

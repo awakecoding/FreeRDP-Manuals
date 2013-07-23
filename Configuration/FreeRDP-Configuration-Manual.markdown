@@ -323,7 +323,16 @@ Change default parser profile:
 
 Download and install Wireshark (http://www.wireshark.org/)
 If you are using Linux, it packages should be available for all major distributions.
-If you choose to build Wireshark from source, make sure that you are building with SSL support. 
+If you choose to build Wireshark from source, make sure that you are building with SSL support.
+
+#### Compilation
+
+This step is only required if the wireshark package that comes with your distribution is not built with proper SSL support (certain versions of openSUSE, for instance). If this is the case, the SSL dissector will lack necessary configuration options.
+
+Building is straightforward. Download and extract the latest wireshark sources. Install required build dependencies (libpcap-devel, libgnutls-devel). Configure with an isolated installation prefix, and enable ssl support, and then build and install:
+
+    ./configure --prefix=/opt/wireshark --with-ssl=yes
+    make install
 
 #### Configuration
 
