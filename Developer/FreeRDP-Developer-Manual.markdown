@@ -537,6 +537,16 @@ BUILD_TESTING (BOOL [OFF]): Enable CTest and build unit tests. Unit tests are lo
 
 BUILD_SAMPLE (BOOL [OFF]): Build sample code, such as sample channels, clients or servers.
 
+### Mac OS X Options
+
+Mac OS X has specific options for 32-bit, 64-bit and universal binaries. By default, cmake will only build for the native architecture. Target architectures can be specified with the CMAKE_OSX_ARCHITECTURES option:
+
+    cmake -DCMAKE_OSX_ARCHITECTURES="i386" -G Xcode .
+    cmake -DCMAKE_OSX_ARCHITECTURES="x86_64" -G Xcode .
+    cmake -DCMAKE_OSX_ARCHITECTURES="i386;x86_64" -G Xcode .
+    
+Where i386 is 32-bit, x86_64 is 64-bit. Specifying both 32-bit and 64-bit means building universal binaries.
+
 ### Optimization Options
 
 WITH_SSE2 (BOOL): Build with SSE2 CPU instructions support (Intel architecture only).
