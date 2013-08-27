@@ -37,7 +37,7 @@ xrdp-ng:
     
     sudo apt-get install \
     libpciaccess-dev libpam0g-dev libpng12-dev libjpeg-dev intltool libexpat1-dev libxml-libxml-perl \
-    libtool bison flex xsltproc libfreetype6-dev libfontconfig1-dev libpixman-1-dev xutils-dev
+    libtool bison flex xsltproc libfreetype6-dev libfontconfig1-dev libpixman-1-dev xutils-dev libaudit-dev
 
 #### (Open)SUSE
 
@@ -60,7 +60,7 @@ xrdp-ng:
     sudo zypper install \
     autoconf automake libtool bison flex libxslt-tools gcc-c++ llvm \
     libpciaccess-devel pam-devel libpng-devel libjpeg-devel intltool libexpat-devel \
-    libpixman-1-0-devel perl-libxml-perl freetype2-devel fontconfig-devel
+    libpixman-1-0-devel perl-libxml-perl freetype2-devel fontconfig-devel 
     
 #### CentOS / REHL / Fedora
 
