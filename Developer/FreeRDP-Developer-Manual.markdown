@@ -807,3 +807,57 @@ You can then connect locally:
     ./bin/xfreerdp /u:username /p:password /cert-ignore /v:localhost
     ./bin/xfreerdp /u:username /p:password /cert-ignore /v:localhost /max-fast-path-size:100000000 /rfx
     ./bin/xfreerdp /u:username /p:password /cert-ignore /v:localhost /max-fast-path-size:100000000 /nsc
+
+# API Reference
+
+## Input
+
+### Concepts
+
+**Keyboard Type**
+
+Physical keyboard type used in Windows keyboard layouts. In the vast majority of cases, type 4 (IBM keyboard) is used. Keyboard type 7 (Japanese 109 keyboard) is used with Japanese keyboard layouts. Most other keyboard types are archaic and are most likely irrelevant today, like type 1 (Olivetti 102 keyboard). Complete keyboard type information also includes a keyboard subtype and number of function keys. Virtual scan code values used in RDP are relative to a specific keyboard type, which is in most cases, but not always, keyboard type 4. This means one should not create static keyboard maps directly involving virtual scan codes, since this approach ignores the keyboard type information and is therefore flawed by design for a minority of cases. Instead, developers are encouraged to create keyboard maps using virtual key codes, and generate on-the-fly a keyboard map to virtual scan codes using the winpr-input module.
+
+**Virtual Scan Code**
+
+A virtual scan code is a scan code corresponding to a physical key on a given keyboard type. A virtual scan code value ranges from 0 to 127 and is either extended or non-extended. Here are some sample mappings between a keyboard type, virtual scan code, and extended/non-extended flag to help understand the differences:
+
+* (Type4, 0x1C, NonExtended) = VK_RETURN (regular Enter key)
+* (Type4, 0x1C, Extended) = VK_RETURN (keypad Enter key)
+* (Type4, 0x1E, NonExtended) = VK_KEY_A (physical 'A' key when using a qwerty layout)
+* (Type4, 0x1E, Extended) = VK_NONE (no corresponding virtual key code)
+* (Type7, 0x70, NonExtended) = VK_DBE_KATAKANA (special japanese key)
+* (Type4, 0x70, NonExtended) = VK_NONE (no corresponding virtual key code)
+
+**Virtual Key Code**
+
+Windows virtual key codes are a keyboard-independent codes representing a keyboard key. They are *not* in any way representative of output characters that results from keyboard input. Not all virtual key codes are given names, and information about some of the less frequently used codes is spread out. For the sake of convenience, WinPR provides an exhaustive list of known virtual key codes in winpr/input.h. Since letter keys are not given official names, WinPR defines VK_KEY_<letter>, where each letter key matches the corresponding key on a US qwerty layout. This means that VK_KEY_Q (top left) is still VK_KEY_Q on an azerty keyboard, even if the corresponding physical key has the letter 'A' on an azerty layout. Mapping virtual key codes to corresponding output characters is the keyboard layout's job.
+
+**Keyboard Layout**
+
+Keyboard layouts on Windows are implemented using DLLs which export some information about them (keyboard type information) and static data structures used for mapping virtual key code input to output characters. A keyboard layout is uniquely identified by an id, such as 0x00000409 for the US keyboard layout.
+
+The process of mapping virtual key code input to output characters is a non-invertible function, meaning that output characters cannot be correctly mapped to the original virtual key code input without loss of information. For instance, the capital letter 'A' can be produced by pressing the 'A' key while the shift key is down, or when caps locks is toggled. Using only the output character 'A', it is impossible to know if the character was produced using the shift key or the caps lock key. The same problem occurs for cases for keys which do not directly produce output characters, such as the control or alt keys. With no output characters to try mapping to original virtual key codes, there's not much that can be done. Other cases which prevent proper mapping of output characters to input virtual key codes are dead keys, or keys which do not result in a direct character output but affect the next key press. In many non-US keyboard layouts, accented letters are typed by first pressing a key corresponding to the accent and then typing the letter that needs to be accented. In theory, one can get by creating keyboard layout specific maps, but this is a tedious process that needs to be repeated for every keyboard layout in existence, while being broken by design.
+
+### Keyboard Event
+
+An RDP keyboard event is a message containing a Windows virtual scan code (extended or non-extended) along with flags to mark the corresponding key as being up or down.
+
+    void freerdp_input_send_keyboard_event(rdpInput* input, UINT16 flags, UINT16 code);
+
+flags:
+
+* KBD_FLAGS_EXTENDED
+* KBD_FLAGS_RELEASE
+* KBD_FLAGS_DOWN
+
+### Keyboard Unicode Event
+
+An RDP unicode keyboard event is a message containing a unicode character along with flags to mark the key as being released.
+
+    void freerdp_input_send_unicode_keyboard_event(rdpInput* input, UINT16 flags, UINT16 code);
+
+flags:
+
+* KBD_FLAGS_RELEASE
+
