@@ -831,13 +831,129 @@ A virtual scan code is a scan code corresponding to a physical key on a given ke
 
 **Virtual Key Code**
 
-Windows virtual key codes are a keyboard-independent codes representing a keyboard key. They are *not* in any way representative of output characters that results from keyboard input. Not all virtual key codes are given names, and information about some of the less frequently used codes is spread out. For the sake of convenience, WinPR provides an exhaustive list of known virtual key codes in winpr/input.h. Since letter keys are not given official names, WinPR defines VK_KEY_<letter>, where each letter key matches the corresponding key on a US qwerty layout. This means that VK_KEY_Q (top left) is still VK_KEY_Q on an azerty keyboard, even if the corresponding physical key has the letter 'A' on an azerty layout. Mapping virtual key codes to corresponding output characters is the keyboard layout's job.
+Windows virtual key codes are a keyboard-independent codes representing a keyboard key. They are *not* in any way representative of output characters that results from keyboard input. Not all virtual key codes are given names, and information about some of the less frequently used codes is spread out. For the sake of convenience, WinPR provides an exhaustive list of known virtual key codes in winpr/input.h. Since letter keys are not given official names, WinPR defines VK_KEY_LETTER, where each letter key matches the corresponding key on a US qwerty layout. This means that VK_KEY_Q (top left) is still VK_KEY_Q on an azerty keyboard, even if the corresponding physical key has the letter 'A' on an azerty layout. Mapping virtual key codes to corresponding output characters is the keyboard layout's job.
 
 **Keyboard Layout**
 
 Keyboard layouts on Windows are implemented using DLLs which export some information about them (keyboard type information) and static data structures used for mapping virtual key code input to output characters. A keyboard layout is uniquely identified by an id, such as 0x00000409 for the US keyboard layout.
 
 The process of mapping virtual key code input to output characters is a non-invertible function, meaning that output characters cannot be correctly mapped to the original virtual key code input without loss of information. For instance, the capital letter 'A' can be produced by pressing the 'A' key while the shift key is down, or when caps locks is toggled. Using only the output character 'A', it is impossible to know if the character was produced using the shift key or the caps lock key. The same problem occurs for cases for keys which do not directly produce output characters, such as the control or alt keys. With no output characters to try mapping to original virtual key codes, there's not much that can be done. Other cases which prevent proper mapping of output characters to input virtual key codes are dead keys, or keys which do not result in a direct character output but affect the next key press. In many non-US keyboard layouts, accented letters are typed by first pressing a key corresponding to the accent and then typing the letter that needs to be accented. In theory, one can get by creating keyboard layout specific maps, but this is a tedious process that needs to be repeated for every keyboard layout in existence, while being broken by design.
+
+### Keyboard Mapping
+
+WinPR (winpr-input module) offers reusable keyboard mapping utilities to help implementers with providing exhaustive, accurate keyboard support. Include winpr/input.h to make use of these.
+
+To make debugging and parsing easier, functions are provided to match known key names to their numerical values:
+
+    char* GetVirtualKeyName(DWORD vkcode);
+    DWORD GetVirtualKeyCodeFromName(const char* vkname);
+    DWORD GetVirtualKeyCodeFromXkbKeyName(const char* xkbname);
+
+Example: mapping XKB key name to virtual key code and printing out the conversion result:
+
+~~~
+char* xkbname = "RTRN"; /* XKB Enter key */
+DWORD vkcode = GetVirtualKeyCodeFromXkbKeyName(xkbname); /* returns VK_RETURN */
+printf("XKB key name: %s Virtual Key Code %s (0x%04X)\n", xkbname, GetVirtualKeyName(vkcode), vkcode);
+~~~
+
+Example: converting textual representation of a virtual key to its corresponding numerical value:
+
+~~~
+char* vkname = "VK_RETURN"; /* this string could be obtained from a configuration file instead */
+DWORD vkcode = GetVirtualKeyCodeFromName(vkname);
+printf("Virtual Key Code: %s (0x%04X)\n", vkname, vkcode);
+~~~
+
+When mapping keyboard systems, the general approach is to create a map between the native key codes and virtual key codes. However, since RDP uses virtual scan codes, you will still need to map the virtual key codes to virtual scan codes before sending them. The advantage is that virtual scan codes are truly keyboard independent and have proper names, while virtual scan codes are highly impractical from the fact that they don't really have names other than their number and are prone to change with regards to the physical keyboard type in use. If the only data you can have from the local input system is output characters, you should attempt using unicode input instead and limit usage of non-unicode keyboard input events to non-character input for keys like shift and num lock.
+
+    DWORD GetVirtualKeyCodeFromVirtualScanCode(DWORD scancode, DWORD dwKeyboardType);
+    DWORD GetVirtualScanCodeFromVirtualKeyCode(DWORD vkcode, DWORD dwKeyboardType);
+
+Example: mapping virtual key codes to virtual scan codes:
+
+~~~
+DWORD scancode;
+
+/* Regular Enter key (non-extended) */
+scancode = GetVirtualScanCodeFromVirtualKeyCode(VK_RETURN, 4); /* returns 0x1C */
+
+/* Keypad Enter key (extended) */
+scancode = GetVirtualScanCodeFromVirtualKeyCode(VK_RETURN | KBDEXT, 4); /* returns (0x1C | KBDEXT) */
+~~~
+
+Example: mapping virtual scan codes to virtual key codes:
+
+~~~
+DWORD vkcode;
+
+/* Regular Enter key (non-extended) */
+vkcode = GetVirtualKeyCodeFromVirtualScanCode(0x1C, 4); /* returns VK_RETURN */
+
+/* Keypad Enter key (extended) */
+vkcode = GetVirtualKeyCodeFromVirtualScanCode(0x1C | KBDEXT, 4); /* returns (VK_RETURN | KBDEXT) */
+~~~
+
+Certain keyboard systems use key codes which can be statically mapped to virtual key codes. WinPR currently provides mapping for Linux evdev and Mac OS X keycodes:
+
+    DWORD GetVirtualKeyCodeFromKeycode(DWORD keycode, DWORD dwFlags);
+    DWORD GetKeycodeFromVirtualKeyCode(DWORD keycode, DWORD dwFlags);
+
+dwFlags:
+* KEYCODE_TYPE_APPLE
+* KEYCODE_TYPE_EVDEV
+
+Most modern Linux X11 environments used evdev for input devices. The good news is that evdev uses a static set of X11 keycodes, which is not the case in other X11 environments. When evdev is not in use but XKB is available, a dynamic keyboard map can be generated on-the-fly using the XKB keyboard mapping utilities. One can use the xev utility to test keyboard input and see X11 keycodes. The following is a sample xev output for the 'A' key on a Linux system using evdev:
+
+~~~
+KeyPress event, serial 40, synthetic NO, window 0x5600001,
+    root 0xd9, subw 0x0, time 17400104, (4,14), root:(1039,482),
+    state 0x2000, keycode 38 (keysym 0x61, a), same_screen YES,
+    XLookupString gives 1 bytes: (61) "a"
+    XmbLookupString gives 1 bytes: (61) "a"
+    XFilterEvent returns: False
+
+KeyRelease event, serial 40, synthetic NO, window 0x5600001,
+    root 0xd9, subw 0x0, time 17400214, (4,14), root:(1039,482),
+    state 0x2000, keycode 38 (keysym 0x61, a), same_screen YES,
+    XLookupString gives 1 bytes: (61) "a"
+    XFilterEvent returns: False
+~~~
+
+Example: mapping Linux evdev keycode to virtual key code back and forth:
+
+~~~
+DWORD vkcode;
+DWORD keycode = 38; /* evdev 'A' key */
+vkcode = GetVirtualKeyCodeFromKeycode(keycode, KEYCODE_TYPE_EVDEV); /* returns VK_KEY_A */
+keycode = GetKeycodeFromVirtualKeyCode(vkcode, KEYCODE_TYPE_EVDEV); /* returns 38 */
+~~~
+
+Mac OS X uses the same set of keycodes in X11 and non-X11 environments. While values from 0 to 7 are unused, the keyCode member of the NSEvent class is off by 8. This means that when receiving the keycode value from Mac OS X, you should increment it by 8 before passing it to GetVirtualKeyCodeFromKeycode(), and decrement the keycode value returned by GetKeycodeFromVirtualKeyCode() before passing it to Mac OS X.
+
+Example: mapping Mac OS X keycode to virtual key code back and forth:
+
+~~~
+DWORD vkcode;
+DWORD keycode = APPLE_VK_Return; /* Mac OS X Enter key */
+vkcode = GetVirtualKeyCodeFromKeycode(keycode + 8, KEYCODE_TYPE_APPLE); /* returns VK_RETURN */
+keycode = GetKeycodeFromVirtualKeyCode(vkcode, KEYCODE_TYPE_APPLE) - 8; /* returns APPLE_VK_Return */
+~~~
+
+### Synchronize Event
+
+An RDP synchronize event is used to synchronize keyboard toggle keys, such as caps lock and num lock. Synchronization of toggle keys is usually required whenever the local session window gains focus, as toggle key states may have changed while the window was not focused.
+
+    void freerdp_input_send_synchronize_event(rdpInput* input, UINT32 flags);
+    
+flags:
+
+* KBD_SYNC_SCROLL_LOCK
+* KBD_SYNC_NUM_LOCK
+* KBD_SYNC_CAPS_LOCK
+* KBD_SYNC_KANA_LOCK
+
+Each flag should be set only if the corresponding key is toggled on the local keyboard. The Kana Lock key is only meaningful for Japanese keyboard input.
 
 ### Keyboard Event
 
@@ -861,3 +977,66 @@ flags:
 
 * KBD_FLAGS_RELEASE
 
+Example: sending 'A' unicode character:
+
+~~~
+freerdp_input_send_unicode_keyboard_event(input, 0, 0x0041); /* Unicode 'A' character (key down) */
+freerdp_input_send_unicode_keyboard_event(input, KBD_FLAGS_RELEASE, 0x0041); /* Unicode 'A' character (key up) */
+~~~
+
+### Mouse Event
+
+An RDP mouse event is used for standard mouse buttons (left, middle and right), mouse movement and mouse wheel scrolling.
+
+    void freerdp_input_send_mouse_event(rdpInput* input, UINT16 flags, UINT16 x, UINT16 y);
+    
+flags:
+
+* PTR_FLAGS_DOWN
+* PTR_FLAGS_MOVE
+* PTR_FLAGS_BUTTON1 (left)
+* PTR_FLAGS_BUTTON2 (right)
+* PTR_FLAGS_BUTTON3 (middle)
+* PTR_FLAGS_WHEEL
+* PTR_FLAGS_WHEEL_NEGATIVE
+* WheelRotationMask
+
+Example: mouse left-click:
+
+~~~
+    freerdp_input_send_mouse_event(input, PTR_FLAGS_BUTTON1 | PTR_FLAGS_DOWN, 100, 200);
+    freerdp_input_send_mouse_event(input, PTR_FLAGS_BUTTON1, 100, 200);
+~~~
+
+Example: mouse movement:
+
+~~~
+    freerdp_input_send_mouse_event(input, PTR_FLAGS_MOVE, 100, 200);
+~~~
+
+Example: mouse wheel scrolling:
+
+~~~
+    int rotationUnits = 0x0078;
+    freerdp_input_send_mouse_event(input, PTR_FLAGS_WHEEL | (rotationUnits & WheelRotationMask), 0, 0);
+    freerdp_input_send_mouse_event(input, PTR_FLAGS_WHEEL | (rotationUnits & WheelRotationMask) | PTR_FLAGS_WHEEL_NEGATIVE, 0, 0);
+~~~
+
+### Extended Mouse Event
+
+An RDP extended mouse event is used for extended mouse buttons, such as button 4 and 5. The extended mouse event accepts the same flags as the regular mouse event, with a few extended flags.
+
+    void freerdp_input_send_extended_mouse_event(rdpInput* input, UINT16 flags, UINT16 x, UINT16 y);
+    
+flags:
+
+* PTR_XFLAGS_DOWN
+* PTR_XFLAGS_BUTTON1 (button 4)
+* PTR_XFLAGS_BUTTON2 (button 5)
+
+Example: extended mouse click
+
+~~~
+    freerdp_input_send_extended_mouse_event(input, PTR_XFLAGS_BUTTON1 | PTR_XFLAGS_DOWN, 100, 200);
+    freerdp_input_send_extended_mouse_event(input, PTR_XFLAGS_BUTTON1, 100, 200);
+~~~
