@@ -1040,3 +1040,105 @@ Example: extended mouse click
     freerdp_input_send_extended_mouse_event(input, PTR_XFLAGS_BUTTON1 | PTR_XFLAGS_DOWN, 100, 200);
     freerdp_input_send_extended_mouse_event(input, PTR_XFLAGS_BUTTON1, 100, 200);
 ~~~
+
+## Virtual Channel API
+
+[Virtual Channel Client DLL](http://msdn.microsoft.com/en-us/library/windows/desktop/aa383580 "Virtual Channel Client DLL")
+
+### VirtualChannelEntry
+
+~~~
+typedef BOOL VCAPITYPE VIRTUALCHANNELENTRY(PCHANNEL_ENTRY_POINTS pEntryPoints);
+~~~
+
+VirtualChannelEntry is the entry point of static virtual channel clients. This function is called with a pointer to a CHANNEL_ENTRY_POINTS structure containing the portion of the virtual channel API exposed to the virtual channel client:
+
+~~~
+typedef struct tagCHANNEL_ENTRY_POINTS
+{
+        DWORD cbSize;
+        DWORD protocolVersion;
+        PVIRTUALCHANNELINIT pVirtualChannelInit;
+        PVIRTUALCHANNELOPEN pVirtualChannelOpen;
+        PVIRTUALCHANNELCLOSE pVirtualChannelClose;
+        PVIRTUALCHANNELWRITE pVirtualChannelWrite;
+} CHANNEL_ENTRY_POINTS, *PCHANNEL_ENTRY_POINTS;
+~~~
+
+The data contained within this structure is only valid for the duration of the call to VirtualChannelEntry and should therefore be copied.
+
+### VirtualChannelInit
+
+VirtualChannelInit has to be called by the virtual channel client when VirtualChannelEntry is called.
+
+~~~
+typedef UINT VCAPITYPE VIRTUALCHANNELINIT(LPVOID* ppInitHandle, PCHANNEL_DEF pChannel, INT channelCount, ULONG versionRequested, PCHANNEL_INIT_EVENT_FN pChannelInitEventProc);
+
+typedef VIRTUALCHANNELINIT *PVIRTUALCHANNELINIT;
+~~~
+
+ppInitHandle receives the init handle which is used to identify the current connection when calling [VirtualChannelOpen](http://msdn.microsoft.com/en-us/library/windows/desktop/aa383570 "VirtualChannelOpen").
+
+pChannel is an array of CHANNEL_DEF structures, where the number of elements in the array is given by channelCount.
+
+~~~
+typedef struct tagCHANNEL_DEF
+{
+        char name[CHANNEL_NAME_LEN + 1];
+        ULONG options;
+} CHANNEL_DEF;
+typedef CHANNEL_DEF *PCHANNEL_DEF;
+typedef PCHANNEL_DEF *PPCHANNEL_DEF;
+~~~
+
+### VirtualChannelInitEvent
+
+[VirtualChannelInitEvent](http://msdn.microsoft.com/en-us/library/windows/desktop/aa383568 "VirtualChannelInitEvent"):
+
+~~~
+typedef VOID VCAPITYPE CHANNEL_INIT_EVENT_FN(LPVOID pInitHandle, UINT event, LPVOID pData, UINT dataLength);
+
+typedef CHANNEL_INIT_EVENT_FN *PCHANNEL_INIT_EVENT_FN;
+~~~
+
+### VirtualChannelOpen
+
+[VirtualChannelOpen](http://msdn.microsoft.com/en-us/library/windows/desktop/aa383570 "VirtualChannelOpen") should be called for each channel registered by the current virtual channel client when VirtualChannelInitEvent is called with a CHANNEL_EVENT_CONNECTED event.
+
+~~~
+typedef UINT VCAPITYPE VIRTUALCHANNELOPEN(LPVOID pInitHandle, LPDWORD pOpenHandle, PCHAR pChannelName, PCHANNEL_OPEN_EVENT_FN pChannelOpenEventProc);
+
+typedef VIRTUALCHANNELOPEN *PVIRTUALCHANNELOPEN;
+~~~
+
+VirtualChannelOpen takes the init handle obtained by a previous call to VirtualChannelInit and receives an open handle which will be used in calls to VirtualChannelWrite and VirtualChannelClose. A pointer to a [VirtualChannelOpenEvent](http://msdn.microsoft.com/en-us/library/windows/desktop/aa383573 "VirtualChannelOpenEvent") function is also passed to VirtualChannelOpen which will be used to receive notifications for read and write operations.
+
+### VirtualChannelOpenEvent
+
+[VirtualChannelOpenEvent](http://msdn.microsoft.com/en-us/library/windows/desktop/aa383573 "VirtualChannelOpenEvent") is used to notify the virtual channel client of data being received or the completion of data write operations.
+
+~~~
+typedef VOID VCAPITYPE CHANNEL_OPEN_EVENT_FN(DWORD openHandle, UINT event, LPVOID pData, UINT32 dataLength, UINT32 totalLength, UINT32 dataFlags);
+
+typedef CHANNEL_OPEN_EVENT_FN *PCHANNEL_OPEN_EVENT_FN;
+~~~
+
+### VirtualChannelWrite
+
+Virtual channel clients call [VirtualChannelWrite](http://msdn.microsoft.com/en-us/library/windows/desktop/aa383576 "VirtualChannelWrite") with the open handle obtained by calling VirtualChannelOpen in order to write data to the virtual channel.
+
+~~~
+typedef UINT VCAPITYPE VIRTUALCHANNELWRITE(DWORD openHandle, LPVOID pData, ULONG dataLength, LPVOID pUserData);
+
+typedef VIRTUALCHANNELWRITE *PVIRTUALCHANNELWRITE;
+~~~
+
+### VirtualChannelClose
+
+[VirtualChannelClose](http://msdn.microsoft.com/en-us/library/windows/desktop/aa383556 "VirtualChannelClose") is called by the virtual channel close using the open handle returned by the previous call to VirtualChannelOpen to close the virtual channel.
+
+~~~
+typedef UINT VCAPITYPE VIRTUALCHANNELCLOSE(DWORD openHandle);
+
+typedef VIRTUALCHANNELCLOSE *PVIRTUALCHANNELCLOSE;
+~~~
