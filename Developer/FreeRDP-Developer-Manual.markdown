@@ -386,21 +386,21 @@ This will download, patch, configure build and install OpenSSL for iOS. The defa
 
 The system root for the iOS SDK can be found in the following path:
 
-/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS6.0.sdk/
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS7.0.sdk/
 
-Where “iPhoneOS6.0.sdk” is subject to change depending on the SDK version.
+Where “iPhoneOS7.0.sdk” is subject to change depending on the SDK version.
 
 To ease installation, configure the following environment variables:
 
-export IOS_SDK_ROOT=/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS6.0.sdk
+export IOS_SDK_ROOT=/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS7.0.sdk
 
 export OPENSSL_ROOT=/tmp/iOSPorts
 
 Then enter the following commands to install OpenSSL in the iOS SDK:
 
-	cp -R "$OPENSSL_ROOT/include" "$IOS_SDK_ROOT/usr"
-	cp "$OPENSSL_ROOT/lib/libssl.a" "$IOS_SDK_ROOT/usr/lib/libssl.a"
-	cp "$OPENSSL_ROOT/lib/libcrypto.a" "$IOS_SDK_ROOT/usr/lib/libcrypto.a"
+	sudo cp -R "$OPENSSL_ROOT/include" "$IOS_SDK_ROOT/usr"
+	sudo cp "$OPENSSL_ROOT/lib/libssl.a" "$IOS_SDK_ROOT/usr/lib/libssl.a"
+	sudo cp "$OPENSSL_ROOT/lib/libcrypto.a" "$IOS_SDK_ROOT/usr/lib/libcrypto.a"
 
 This procedure only has to be executed once per iOS SDK. After this, OpenSSL should be picked up automatically by CMake.
 
