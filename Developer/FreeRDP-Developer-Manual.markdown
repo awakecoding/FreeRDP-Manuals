@@ -60,7 +60,8 @@ FreeRDS:
     sudo zypper install \
     autoconf automake libtool bison flex libxslt-tools gcc-c++ llvm \
     libpciaccess-devel pam-devel libpng-devel libjpeg-devel intltool libexpat-devel \
-    libpixman-1-0-devel perl-libxml-perl freetype2-devel fontconfig-devel
+    libpixman-1-0-devel perl-libxml-perl freetype2-devel fontconfig-devel \
+    protobuf-c protobuf-devel boost-devel
     
 #### CentOS / REHL / Fedora
 
@@ -651,125 +652,25 @@ Follow the regular instructions for building FreeRDP, with the exception of a fe
     sudo mkdir /opt/freerds
     sudo chmod 777 /opt/freerds
 
+## Building
+
 ## X11rdp
 
 X11rdp is an alternative X11 server like Xvnc, Xephyr, Xnest and Xvb. Normally, these servers are built alongside Xorg with the xorg-server sources as they make use of internal APIs and libraries that are not installed. To build X11rdp, we need to build the xorg-server sources in a known directory such that we can include them in our cmake project.
 
-The generic approach is to install all the distribution-provided packages required to build the xorg-server package from source. You can then obtain the distribution-sources for the xorg-server package or obtain vanilla sources corresponding to the same version. To determine your current xorg-server version, you can use "X -version":
+The generic approach is to install all the distribution-provided packages required to build the xorg-server package from source. You can then obtain the distribution-sources for the xorg-server package or obtain vanilla sources corresponding to the same version. This process is automated with cmake build scripts, but needs to be done prior to generating the FreeRDS project:
 
-    X -version
-
-    X.Org X Server 1.13.2
-    Release Date: 2013-01-24
-    X Protocol Version 11, Revision 0
-    Build Operating System: openSUSE SUSE LINUX
-    Current Operating System: Linux system76.site 3.7.10-1.16-desktop #1 SMP PREEMPT Fri May 31 20:21:23 UTC 2013 (97c14ba) x86_64
-    Kernel command line: BOOT_IMAGE=/boot/vmlinuz-3.7.10-1.16-desktop root=UUID=04389d94-a4ad-4eae-9cfc-31c250157ab8 resume=/dev/disk/by-id/ata-M4-CT512M4SSD2_000000001243091A26D8-part5 splash=silent quiet showopts
-    Build Date: 30 April 2013  08:24:17AM
- 
-    Current version of pixman: 0.28.2
-            Before reporting problems, check http://wiki.x.org
-            to make sure that you have the latest version.
-
-For the current example, the version is 1.13.2. The vanilla source tarball can be obtained for the xorg website:
-
-    http://xorg.freedesktop.org/releases/individual/xserver/xorg-server-1.13.2.tar.bz2
-
-Download the sources in server/FreeRDS/xorg, extract them, and rename the directory to xorg-server:
-
-    cd ~/git/awakecoding/FreeRDP/server/FreeRDS/xorg
-    wget http://xorg.freedesktop.org/releases/individual/xserver/xorg-server-1.13.2.tar.bz2
-    tar jxvf xorg-server-1.13.2.tar.bz2
-    mv xorg-server-1.13.2 xorg-server
-
-### Ubuntu and Debian
-
-The following instructions are tested on ubuntu 13.04 and debian wheezy. $XVERSION is the version of the distributed package.
-
-Install build dependencies for the xorg-server sources:
-
-    sudo apt-get build-dep xorg-server xserver-xorg-core
- 
-Get the source of the distributed package and prepare it:
-
-    cd server/FreeRDS/xorg
-    apt-get source xserver-xorg-core
-    ln -s xorg-server-$VERSION xorg-server
-
-Starting with Ubuntu 13.04, the Unity 2D fallback is no longer installed by default. At this point FreeRDS does not work properly with Unity 3D so you'll need to install and use Unity 2D:
-
-    sudo apt-get install gnome-session-fallback
-
-### OpenSUSE
-
-To install all development packages required to a build a specific package, use the zypper si (source-install) command:
-
-    sudo zypper si xorg-x11-server
-
-This will also download the sources used for the xorg-x11-server package in /usr/src/packages/SOURCES:
-
-    ls -l /usr/src/packages/SOURCES | grep xorg-server
-    -rw-r--r-- 1 root root    1189 Aug 12  2012 N_xorg-server-xdmcp.patch
-    -rw-r--r-- 1 root root 5477756 Jan 31 13:14 xorg-server-1.13.2.tar.bz2
-    -rw-r--r-- 1 root root     130 Nov 24  2012 xorg-server-provides
-    
-Move to the xorg directory and copy the distribution-provided sources there:
-
-    cd ~/git/awakecoding/FreeRDP/server/FreeRDS
-    cd xorg
-    cp /usr/src/packages/SOURCES/xorg-server-*.tar.bz2 .
-    tar jxvf xorg-server-1.13.2.tar.bz2
-    mv xorg-server-1.13.2 xorg-server
-
-### CentOS
-
-Download and install all development packages required to build xorg-x11-server package:
-
-    yum install xorg-x11-server-devel xorg-x11-xtrans-devel libXfont-devel libXdmcp-devel
-
-Find the corresponding xorg-x11-server source rpm on vault.centos.org.
-
-    wget http://vault.centos.org/6.4/os/Source/SPackages/xorg-x11-server-1.13.0-11.el6.centos.src.rpm
-    rpm -i *.src.rpm
-    cd ~/git/awakecoding/FreeRDP/server/FreeRDS
-    cd xorg
-    cp ~/rpmbuild/SOURCES/xorg-server-*.tar.bz2 .
-    tar jxvf xorg-server-*.tar.bz2
-    mv xorg-server-1.13.0 xorg-server
-
-## Building
-
-### Xorg 
-
-#### Generic
-
-Configure and build the xorg-server sources, but don't install them. CMake will include and link against private headers and libraries from the local xorg-server build. For this reason, you need to prepare xorg-server prior to generating CMake project files.
-
-    cd ~/git/awakecoding/FreeRDP/server/FreeRDS
-    cd xorg/xorg-server
-    ./configure --prefix=/usr --with-sha1=libcrypto --disable-dpms
+    cd ~/git/FreeRDP/FreeRDP/server/FreeRDS
+    cd session-manager/module/X11/service/xorg-build
+    cmake .
     make
+    
+If all goes well, you should have xorg-server built in external/Source/xorg-server. Create a symbolic link to that location from session-manager/module/X11/server/xorg-server:
 
-You only need to build the xorg-server sources once. CMake will import what it needs but leave the original xorg-server sources untouched.
+    cd ..
+    ln -s xorg-build/external/Source/xorg-server xorg-server
 
-#### Ubuntu and Debian
-
-If you use the Debian/Ubuntu package you might want to build with the same patches and configuration as the package was build for the distribution.
-
-    cd server/FreeRDS/xorg/xorg-server
-    ./debian/rules build
-
-This creates all required files in server/FreeRDS/xorg/xorg-server/build-main.
-To use this "out of tree" some configuration needs to be done in 
-server/FreeRDS/xorg/rdp/CMakeLists.txt:
-
-Set XOBJBASE_RELATIVE to ../xorg-server/build-main instead of ../xorg-server (at the top around line 14):
- 
-    set(XOBJBASE_RELATIVE "../xorg-server/build-main")
-
-Finally add the following line after the final target_link_libraries (before the install command somewhere around line 266):
-
-    target_link_libraries(${MODULE_NAME} -lselinux -laudit -lgcrypt
+session-manager/module/X11/server/xorg-server will then be picked up by the FreeRDS build system.
 
 ### FreeRDS
 
