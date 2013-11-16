@@ -154,7 +154,21 @@ The Xcode command line tools are not installed by default with Xcode and are nec
 * On the Xcode menu, click Xcode and then Preferences 
 * Select the Downloads tab from the Preferences panel 
 * Select the Components sub-tab from the Downloads tab 
-* Select Command line tools and click install on the right    
+* Select Command line tools and click install on the right
+
+#### SDKs
+
+Whenever Xcode is updated through the Mac App Store, it tends to remove SDKs for older versions of Mac OS X to only keep the new ones. In order to provide better backwards compatibility, one can download older releases of Xcode and manually install the missing SDKs in newer versions of Xcode. This process has to be repeated whenever Xcode is updated.
+
+ * Download the last release of Xcode containing the SDK you want and mount it.
+ * Right-click the Xcode package, select "Show Package Contents".
+ * Browse to Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs.
+ * Save a copy of the desired SDK like "MacOSX10.6.sdk" for later.
+ * Install Mac OS X SDKs to /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs.
+
+Mac OS X 10.6 Snow Leopard SDK: Xcode 4.3.3
+
+Mac OS X 10.7 Lion SDK: Xcode 4.6.3
 
 ### Windows
 
@@ -266,6 +280,18 @@ There is an Eclipse project located in client/Android, which is different from a
 ### iOS
 
 iOS development requires Xcode and the same development environment as for Mac OS X with the addition of the iOS SDK. Certain features like deploying to real devices are limited to Apple developers only.
+
+#### iOS SDKs
+
+Just like for Mac OS X SDKs, older versions of the iOS SDKs disappear when you update to a newer version of Xcode.
+
+ * Download the last release of Xcode containing the SDK you want and mount it.
+ * Right-click the Xcode package, select "Show Package Contents".
+ * Browse to Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs.
+ * Save a copy of the desired SDK like "iPhoneOS6.1.sdk" for later.
+ * Install iOS SDKs to /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs.
+
+iOS 6.1 SDK: Xcode 4.6.3
 
 #### Invoking CMake
 
