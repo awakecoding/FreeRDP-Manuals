@@ -20,7 +20,7 @@ To be expanded.
 
 ### Linux
 
-#### Debian / Ubuntu
+#### Debian / Ubuntu / Mint
 
 FreeRDP:
 
@@ -37,7 +37,7 @@ FreeRDS:
     
     sudo apt-get install \
     libpciaccess-dev libpam0g-dev libpng12-dev libjpeg-dev intltool libexpat1-dev libxml-libxml-perl \
-    libtool bison flex xsltproc libfreetype6-dev libfontconfig1-dev libpixman-1-dev xutils-dev
+    libtool bison flex xsltproc libfreetype6-dev libfontconfig1-dev libpixman-1-dev xutils-dev x11proto-gl-dev mesa-common-dev xorg-dev libprotobuf-c0-dev protobuf-c-compiler libboost-dev
 
 #### (Open)SUSE
 
@@ -706,13 +706,19 @@ When generating project files with cmake, specify the prefix using -DCMAKE_INSTA
     
 Then always execute "make install" after building and launch freerds from its installed location. Executing from the source tree may be properly supported in the future but for now it is not recommended.
 
-## Running
+## Firewall
 
-You may want to disable the firewall on CentOS:
+On distributions with iptables (CentOS, etc), you can turn the firewall off for testing:
 
     service iptables save
     service iptables stop
     chkconfig iptables off
+
+On distributions with UFW (Uncomplicated Firewall) such as Ubuntu and Linux Mint, you can allow port 3389:
+
+    sudo ufw allow 3389/tcp
+
+## Running
 
 Open two terminals logged in as root, and change directory to your installation prefix (/opt/freerds).
 
@@ -722,7 +728,7 @@ In the first one, execute freerds:
 
 In the second one, execute freerds-session-manager:
 
-    ./bin/freerds-session-manager
+    ./bin/freerds-session-manager --nodaemon
 
 There are easier ways of executing freerds but this manual execution method is more flexible for development purposes.
 
@@ -730,7 +736,6 @@ You can then connect locally:
 
     ./bin/xfreerdp /u:username /p:password /cert-ignore /v:localhost
     ./bin/xfreerdp /u:username /p:password /cert-ignore /v:localhost /rfx
-    ./bin/xfreerdp /u:username /p:password /cert-ignore /v:localhost /max-fast-path-size:100000000 /nsc
 
 # API Reference
 
