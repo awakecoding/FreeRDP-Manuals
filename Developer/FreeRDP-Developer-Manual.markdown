@@ -211,7 +211,7 @@ You will need to set a certain number of environment variables to ease Android d
 
 The prebuilt toolchains that come with the Android NDK should suffice, but if you need to build your own, invoke the make-standalone-toolchain.sh script:
 
-	$NDK/build/tools/make-standalone-toolchain.sh --platform=android-8 --install-dir=$ANDROID_STANDALONE_TOOLCHAIN
+	$NDK/build/tools/make-standalone-toolchain.sh --platform=android-9 --install-dir=$ANDROID_STANDALONE_TOOLCHAIN
 
 Where $ANDROID_STANDALONE_TOOLCHAIN is the location where you want to install your standalone toolchain.
 
@@ -252,11 +252,6 @@ assets: project assets, added as-is to the .apk
 res: contains XML configuration files for menus, layouts, strings, etc
 
 libs: contains third-party libraries for both Java and native code
-
-Since the Android native code is built with cmake from the top-level directory, there is a small issue where the library output path does not match the one from the Android project. CMake outputs libfreerdp-android.so to libs/armeabi-v7a, but the Android project expects them in client/Android/libs/armeabi-v7a. You can either copy libfreerdp-android.so manually every time, or create a symlink to work around the issue:
-
-	cd client/Android/libs
-	ln -s ../../../libs/armeabi-v7a/ armeabi-v7a
 
 In order to verify that libfreerdp-android.so gets properly packaged in the .apk, simply unzip the resulting .apk files to see its contents (an .apk file is a regular zip file with a different extension).
 
@@ -381,7 +376,7 @@ Ensure you have the proper environment variables configured for Android developm
 
 You can optionally install OpenSSL globally by copying the headers and library files to your target android platform directory:
 
-	export ANDROID_PLATFORM=android-8
+	export ANDROID_PLATFORM=android-9
 	cp -R include/ $NDK/platforms/$ANDROID_PLATFORM/arch-arm/usr/include/
 	cp obj/local/armeabi/*.a $NDK/platforms/$ANDROID_PLATFORM/arch-arm/usr/lib/
 
