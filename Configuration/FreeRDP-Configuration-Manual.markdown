@@ -14,7 +14,7 @@ To be expanded.
 
 [FreeRDP User Manual](https://github.com/awakecoding/FreeRDP-Manuals/blob/master/User/FreeRDP-User-Manual.pdf?raw=true "FreeRDP User Manual")
 
-[FreeRDP Developer Manual](https://github.com/awakecoding/FreeRDP-Manuals/blob/master/Configuration/FreeRDP-Developer-Manual.pdf?raw=true "FreeRDP Developer Manual")
+[FreeRDP Developer Manual](https://raw.githubusercontent.com/awakecoding/FreeRDP-Manuals/master/Developer/FreeRDP-Developer-Manual.pdf?raw=true "FreeRDP Developer Manual")
 
 [FreeRDP Testing Manual](https://github.com/awakecoding/FreeRDP-Manuals/blob/master/Testing/FreeRDP-Testing-Manual.pdf?raw=true "FreeRDP Testing Manual")
 
