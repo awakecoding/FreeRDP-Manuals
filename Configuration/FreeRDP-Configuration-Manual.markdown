@@ -125,7 +125,7 @@ Create an OpenSSL config file named “rdp.cfg”:
 
 Execute the following commands in the directory where rdp.ext and rdp.cfg are located:
 
-    openssl genrsa –out rdp.key 2048
+    openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out rdp.key
     openssl req -config rdp.cfg -new -key rdp.key -out rdp.csr
     openssl x509 -req -days 365 -extfile rdp.ext -signkey rdp.key -in rdp.csr -out rdp.crt 
     openssl pkcs12 -export -inkey rdp.key -in rdp.crt -out rdp.pfx
