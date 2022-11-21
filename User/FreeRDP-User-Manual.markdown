@@ -271,7 +271,7 @@ Alternatively, the User Principal Name (UPN) notation can be used:
 
 	xfreerdp /u:JohnDoe@CONTOSO /p:Password123! /v:rdp.contoso.com
 
-This notation does not have the drawbacks of the backslash character, but introduces a potential conflict with usernames containing the '@' symbol and no domain name. This is frequently the case with the new Windows 8 Microsoft Accounts (a.k.a. Windows Live Accounts) which correspond to an email address. To work work around the ambiguity, precede the user name "john.doe@live.com" with a backslash:
+This notation does not have the drawbacks of the backslash character, but introduces a potential conflict with usernames containing the '@' symbol and no domain name. This is frequently the case with the new Windows 8 Microsoft Accounts (a.k.a. Windows Live Accounts) which correspond to an email address. To work around the ambiguity, precede the user name "john.doe@live.com" with a backslash:
 
 	xfreerdp /u:\john.doe@live.com /p:Password123! /v:rdp.contoso.com
 	
